@@ -49,24 +49,30 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         System.out.println("tree.getMin(): " + tree.getMin());
         System.out.println("tree.getMax(): " + tree.getMax());
         
-        final var removedAll = new AtomicBoolean(true);
+        final var removedAll = new AtomicBoolean(false);
         executeParallel(threads, () -> {
-            final var innerRemoveAll = randomList(0, 1000)
+            randomList(0, 1000)
                 .stream()
-                .allMatch(value -> tree.remove(value) != null);
+                .forEach(value -> tree.remove(value));
             
-            if (!innerRemoveAll) {
-                removedAll.set(false);
+            if (tree.isEmpty()) {
+                removedAll.set(true);
             }
             
             return null;
         });
         
-        System.out.println("removedAll: " + removedAll.get());
+        System.out.println("Removed async");
+        
+        randomList(0, 1000)
+                .stream()
+                .forEach(value -> tree.remove(value));
+        
+        System.out.println();
         System.out.println("tree.size(): " + tree.size());
         System.out.println("size == traversed.size: " + (tree.size() == traversed.size()));
         System.out.println("tree.isEmpty(): " + tree.isEmpty());
-        System.out.println("tree.traverse(): " + traversed);
+        System.out.println("tree.traverse(): " + tree.traverse());
         System.out.println("tree.getMin(): " + tree.getMin());
         System.out.println("tree.getMax(): " + tree.getMax());
     }
