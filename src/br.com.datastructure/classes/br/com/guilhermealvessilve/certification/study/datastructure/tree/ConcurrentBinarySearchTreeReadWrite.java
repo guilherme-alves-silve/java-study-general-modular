@@ -137,13 +137,46 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
         }
     }
     
-    private Node<E> findPredecessor(Node<E> node) {
+    public E getMin() {
+        readWriteLock.readLock().lock();
+        try {
+            if (null == root) {
+                return null;
+            }
         
-        if (node.onlyLeft() || node.withoutChildren()) {
-            return node;
+            return getMinValue(root, root.data);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+    
+    private E getMinValue(Node<E> node, E minValue) {
+        if (null == node || minValue.compareTo(node.data) < 0) {
+            return minValue;
         }
         
-        return findPredecessor(node.right);
+        return getMinValue(node.left, node.data);
+    }
+    
+    public E getMax() {
+        readWriteLock.readLock().lock();
+        try {
+            if (null == root) {
+                return null;
+            }
+        
+            return getMaxValue(root, root.data);
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+    
+    private E getMaxValue(Node<E> node, E maxValue) {
+        if (null == node || maxValue.compareTo(node.data) > 0) {
+            return maxValue;
+        }
+        
+        return getMaxValue(node.right, node.data);
     }
     
     public int size() {

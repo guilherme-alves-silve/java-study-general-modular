@@ -46,6 +46,8 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         System.out.println("size == traversed.size: " + (tree.size() == traversed.size()));
         System.out.println("tree.isEmpty(): " + tree.isEmpty());
         System.out.println("tree.traverse(): " + traversed);
+        System.out.println("tree.getMin(): " + tree.getMin());
+        System.out.println("tree.getMax(): " + tree.getMax());
         
         final var removedAll = new AtomicBoolean(true);
         executeParallel(threads, () -> {
@@ -54,7 +56,7 @@ public class MainConcurrentBinarySearchTreeReadWrite {
                 .allMatch(value -> tree.remove(value) != null);
             
             if (!innerRemoveAll) {
-                foundAll.set(false);
+                removedAll.set(false);
             }
             
             return null;
@@ -64,6 +66,9 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         System.out.println("tree.size(): " + tree.size());
         System.out.println("size == traversed.size: " + (tree.size() == traversed.size()));
         System.out.println("tree.isEmpty(): " + tree.isEmpty());
+        System.out.println("tree.traverse(): " + traversed);
+        System.out.println("tree.getMin(): " + tree.getMin());
+        System.out.println("tree.getMax(): " + tree.getMax());
     }
     
     private static List<Integer> randomList(int startInclusive, int endExclusive) {

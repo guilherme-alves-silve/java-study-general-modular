@@ -43,9 +43,6 @@ public class ConcurrencyBinarySearchTreeFreeLock<E extends Comparable<E>> {
             return false;
         }
         
-        
-        
-        
         return false;
     }
     
