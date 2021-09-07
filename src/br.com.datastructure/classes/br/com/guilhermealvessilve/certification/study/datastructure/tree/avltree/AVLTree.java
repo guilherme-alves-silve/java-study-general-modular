@@ -19,11 +19,13 @@ public class AVLTree<E extends Comparable<E>> {
         Objects.requireNonNull(data, "data cannot be null!");
         if (null == root) {
             ++size;
-            this.root = new Node<>(data);
+            this.root = new Node<>(data, null);
             return true;
         }
-
-        return addNode(root, data);
+        
+        boolean added = addNode(root, data);
+        updateHeight(root);
+        return added;
     }
     
     private boolean addNode(Node<E> node, E data) {
@@ -34,7 +36,8 @@ public class AVLTree<E extends Comparable<E>> {
         if (node.data.compareTo(data) > 0) {
             if (null == node.left) {
                 ++size;
-                node.left = new Node<>(data);
+                node.left = new Node<>(data, node);
+                updateHeight(node);
                 return true;
             }
             
@@ -43,7 +46,8 @@ public class AVLTree<E extends Comparable<E>> {
         
         if (null == node.right) {
             ++size;
-            node.right = new Node<>(data);
+            node.right = new Node<>(data, node);
+            updateHeight(node);
             return true;
         }
 
@@ -107,6 +111,7 @@ public class AVLTree<E extends Comparable<E>> {
 
         --size;
         root = removeValue(root, data);
+        updateHeight(root);
         return true;
     }
     
@@ -133,7 +138,8 @@ public class AVLTree<E extends Comparable<E>> {
                 node.left = removeValue(node.left, predecessor.data);
             }
         }
-
+        
+        updateHeight(node);
         return node;
     }
     
@@ -186,14 +192,41 @@ public class AVLTree<E extends Comparable<E>> {
         return null == root;
     }
     
+    private void updateHeight(Node<E> node) {
+        if (null == node) {
+            return;
+        }
+        
+        node.height = Math.max(height(node.left), height(node.right));
+    }
+    
+    private int height(Node<E> node) {
+        if (null == node) {
+            return -1;
+        }
+        
+        return node.height;
+    }
+    
+    private int balanceFactor(Node<E> node) {
+        if (null == node) {
+            return 0;
+        }
+        
+        return height(node.left) - height(node.right);
+    }
+    
     private static class Node<E> {
         
+        private E data;
+        private int height;
         private Node<E> left;
         private Node<E> right;
-        private E data;
+        private Node<E> parent;
 
-        public Node(E data) {
+        public Node(E data, Node<E> parent) {
             this.data = data;
+            this.parent = parent;
         }
     }
 }

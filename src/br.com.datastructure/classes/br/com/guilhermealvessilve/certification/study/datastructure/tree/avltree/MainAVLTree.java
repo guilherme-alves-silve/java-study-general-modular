@@ -1,0 +1,72 @@
+package br.com.guilhermealvessilve.certification.study.datastructure.tree.avltree;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
+
+/**
+ *
+ * @author Alves
+ */
+public class MainAVLTree {
+    
+    public static void main(String[] args) throws InterruptedException {
+        final var tree = new AVLTree<Integer>();
+        
+        final var ints = randomList(0, 1000);
+        ints.forEach(tree::add);
+        
+        final var traversed = tree.traverse();
+        
+        final var foundAll = new AtomicBoolean(true);
+        final var innerFoundAll = randomList(0, 1000)
+            .stream()
+            .allMatch(value -> tree.search(value) != null);
+
+        if (!innerFoundAll) {
+            foundAll.set(false);
+        }
+        
+        System.out.println("foundAll: " + foundAll.get());
+        System.out.println("tree.size(): " + tree.size());
+        System.out.println("size == traversed.size: " + (tree.size() == traversed.size()));
+        System.out.println("tree.isEmpty(): " + tree.isEmpty());
+        System.out.println("tree.traverse(): " + traversed);
+        System.out.println("tree.getMin(): " + tree.getMin());
+        System.out.println("tree.getMax(): " + tree.getMax());
+        
+        final var removedAll = new AtomicBoolean(false);
+        randomList(0, 1000)
+            .stream()
+            .forEach(value -> tree.remove(value));
+
+        if (tree.isEmpty()) {
+            removedAll.set(true);
+        }
+        
+        System.out.println("Removed");
+        
+        randomList(0, 1000)
+                .stream()
+                .forEach(value -> tree.remove(value));
+        
+        System.out.println();
+        System.out.println("tree.size(): " + tree.size());
+        System.out.println("size == traversed.size: " + (tree.size() == traversed.size()));
+        System.out.println("tree.isEmpty(): " + tree.isEmpty());
+        System.out.println("tree.traverse(): " + tree.traverse());
+        System.out.println("tree.getMin(): " + tree.getMin());
+        System.out.println("tree.getMax(): " + tree.getMax());
+    }
+    
+    private static List<Integer> randomList(int startInclusive, int endExclusive) {
+        final var ints = IntStream.range(startInclusive, endExclusive)
+                .collect(() -> new ArrayList<Integer>(), 
+                        (list, intValue) -> list.add(intValue), 
+                        (list1, list2) -> list1.addAll(list2));
+        Collections.shuffle(ints);
+        return ints;
+    }
+}
