@@ -1,4 +1,4 @@
-package br.com.guilhermealvessilve.certification.study.datastructure.tree;
+package br.com.guilhermealvessilve.certification.study.datastructure.tree.bst;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;

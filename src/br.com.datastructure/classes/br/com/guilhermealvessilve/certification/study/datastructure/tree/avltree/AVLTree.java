@@ -1,45 +1,29 @@
-package br.com.guilhermealvessilve.certification.study.datastructure.tree;
+package br.com.guilhermealvessilve.certification.study.datastructure.tree.avltree;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
  * @author Alves
- * @param <E>
  */
-public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
-    
-    private final ReentrantReadWriteLock readWriteLock;
+public class AVLTree<E extends Comparable<E>> {
+
     private volatile int size;
     private volatile Node<E> root;
-
-    public ConcurrentBinarySearchTreeReadWrite() {
-        this(false);
-    }
-
-    public ConcurrentBinarySearchTreeReadWrite(boolean fair) {
-        this.readWriteLock = new ReentrantReadWriteLock(fair);
-    }
     
     public boolean add(E data) {
         
         Objects.requireNonNull(data, "data cannot be null!");
-        readWriteLock.writeLock().lock();
-        try {
-            if (null == root) {
-                ++size;
-                this.root = new Node<>(data);
-                return true;
-            }
-            
-            return addNode(root, data);
-        } finally {
-            readWriteLock.writeLock().unlock();
+        if (null == root) {
+            ++size;
+            this.root = new Node<>(data);
+            return true;
         }
+
+        return addNode(root, data);
     }
     
     private boolean addNode(Node<E> node, E data) {
@@ -72,13 +56,8 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
         if (null == root) {
             return null;
         }
-        
-        readWriteLock.readLock().lock();
-        try {
-            return searchNode(root, data);
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+
+        return searchNode(root, data);
     }
     
     private E searchNode(Node<E> node, E data) {
@@ -102,15 +81,10 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
         if (0 == size) {
             return Collections.emptyList();
         }
-        
-        readWriteLock.readLock().lock();
-        try {
-            final List<E> elements = new ArrayList<>(size);
-            inOrderTraverse(root, elements);
-            return elements;
-        } finally {
-            readWriteLock.readLock().unlock();
-        }
+
+        final List<E> elements = new ArrayList<>(size);
+        inOrderTraverse(root, elements);
+        return elements;
     }
     
     private void inOrderTraverse(Node<E> node, List<E> elements) {
@@ -125,53 +99,38 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
         }
     }
     
-    public E remove(E data) {
+    public boolean remove(E data) {
         Objects.requireNonNull(data, "data cannot be null!");
-        if (null == root) {
-            return null;
+        if (null == root || searchNode(root, data) == null) {
+            return false;
         }
-        
-        readWriteLock.writeLock().lock();
-        try {
-            if (null == root) {
-                return null;
-            }
-            
-            if (searchNode(root, data) == null) {
-                return null;
-            }
 
-            --size;
-            final var bag = new ObjectBag<E>();
-            root = removeValue(bag, root, data);
-            return bag.element;
-        } finally {
-            readWriteLock.writeLock().unlock();
-        }
+        --size;
+        root = removeValue(root, data);
+        return true;
     }
     
-    private Node<E> removeValue(ObjectBag<E> bag, Node<E> node, E data) {
+    private Node<E> removeValue(Node<E> node, E data) {
         
         if (null == node) {
             return null;
         }
 
         if (node.data.compareTo(data) > 0) {
-            node.left = removeValue(bag, node.left, data);
+            node.left = removeValue(node.left, data);
         } else if (node.data.compareTo(data) < 0) {
-            node.right = removeValue(bag, node.right, data);
+            node.right = removeValue(node.right, data);
         } else {
-            if (node.withoutChildren()) {
+            if (null == node.left && null == node.right) {
                 return null;
-            } else if (node.withoutLeft()) {
+            } else if (null == node.left) {
                 return node.right;
-            } else if (node.withoutRight()) {
+            } else if (node == node.right) {
                 return node.left;
             } else {
-                bag.set(data);
                 final var predecessor = searchPredecessor(node.left);
                 node.data = predecessor.data;
-                node.left = removeValue(bag, node.left, predecessor.data);
+                node.left = removeValue(node.left, predecessor.data);
             }
         }
 
@@ -188,16 +147,11 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
     }
     
     public E getMin() {
-        readWriteLock.readLock().lock();
-        try {
-            if (null == root) {
-                return null;
-            }
-        
-            return getMinValue(root, root.data);
-        } finally {
-            readWriteLock.readLock().unlock();
+        if (null == root) {
+            return null;
         }
+
+        return getMinValue(root, root.data);
     }
     
     private E getMinValue(Node<E> node, E minValue) {
@@ -209,16 +163,11 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
     }
     
     public E getMax() {
-        readWriteLock.readLock().lock();
-        try {
-            if (null == root) {
-                return null;
-            }
-        
-            return getMaxValue(root, root.data);
-        } finally {
-            readWriteLock.readLock().unlock();
+        if (null == root) {
+            return null;
         }
+
+        return getMaxValue(root, root.data);
     }
     
     private E getMaxValue(Node<E> node, E maxValue) {
@@ -245,32 +194,6 @@ public class ConcurrentBinarySearchTreeReadWrite<E extends Comparable<E>> {
 
         public Node(E data) {
             this.data = data;
-        }
-        
-        public boolean withoutChildren() {
-            return null == left && null == right;
-        }
-        
-        public boolean withoutLeft() {
-            return null == left;
-        }
-        
-        public boolean withoutRight() {
-            return null == right;
-        }
-    }
-    
-    private class ObjectBag<E> {
-        E element;
-        boolean filled;
-        
-        private void set(E data) {
-            if (filled) {
-                return;
-            }
-            
-            element = data;
-            filled = true;
         }
     }
 }
