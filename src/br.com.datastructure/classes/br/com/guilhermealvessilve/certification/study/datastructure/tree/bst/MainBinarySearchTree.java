@@ -1,4 +1,4 @@
-package br.com.guilhermealvessilve.certification.study.datastructure.tree.avltree;
+package br.com.guilhermealvessilve.certification.study.datastructure.tree.bst;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,22 +10,17 @@ import java.util.stream.IntStream;
  *
  * @author Alves
  */
-public class MainAVLTree {
+public class MainBinarySearchTree {
     
     public static void main(String[] args) throws InterruptedException {
+        final var tree = new BinarySearchTree<Integer>();
         
-        testRotations();
-        
-        int total = 1000;
-        
-        final var tree = new AVLTree<Integer>();
-        
-        final var ints = randomList(0, total);
+        final var ints = randomList(0, 1000);
         boolean allInserted = ints.stream().allMatch(tree::insert);
         
         final var traversed = tree.traverse();
         
-        final var foundAll = randomList(0, total)
+        final var foundAll = randomList(0, 1000)
             .stream()
             .allMatch(value -> tree.search(value) != null);
 
@@ -40,7 +35,7 @@ public class MainAVLTree {
 
         System.out.println("Removing");
         
-        boolean removedAll = randomList(0, total)
+        boolean removedAll = randomList(0, 1000)
                 .stream()
                 .allMatch(value -> Objects.equals(tree.search(value), value) && tree.remove(value));
         
@@ -61,39 +56,5 @@ public class MainAVLTree {
                         (list1, list2) -> list1.addAll(list2));
         Collections.shuffle(ints);
         return ints;
-    }
-    
-    private static void testRotations() throws InterruptedException {
-        //left-right heavy
-        final var tree0 = new AVLTree<Integer>();
-        tree0.insert(10);
-        tree0.insert(8);
-        tree0.insert(9);
-        System.out.println("tree.traverse(): " + tree0.traverse());
-        tree0.printNode();
-        
-        //right-left heavy
-        final var tree1 = new AVLTree<Integer>();
-        tree1.insert(8);
-        tree1.insert(10);
-        tree1.insert(9);
-        System.out.println("tree.traverse(): " + tree1.traverse());
-        tree1.printNode();
-        
-        //left-left heavy
-        final var tree2 = new AVLTree<Integer>();
-        tree2.insert(10);
-        tree2.insert(9);
-        tree2.insert(8);
-        System.out.println("tree.traverse(): " + tree2.traverse());
-        tree2.printNode();
-        
-        //right-right heavy
-        final var tree3 = new AVLTree<Integer>();
-        tree3.insert(8);
-        tree3.insert(9);
-        tree3.insert(10);
-        System.out.println("tree.traverse(): " + tree3.traverse());
-        tree3.printNode();
     }
 }

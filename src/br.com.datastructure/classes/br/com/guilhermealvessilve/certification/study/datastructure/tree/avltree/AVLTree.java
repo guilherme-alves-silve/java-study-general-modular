@@ -11,47 +11,34 @@ import java.util.Objects;
  */
 public class AVLTree<E extends Comparable<E>> {
 
-    private volatile int size;
-    private volatile Node<E> root;
+    private int size;
+    private Node<E> root;
     
-    public boolean add(E data) {
+    public boolean insert(E data) {
         
         Objects.requireNonNull(data, "data cannot be null!");
-        if (null == root) {
-            ++size;
-            this.root = new Node<>(data, null);
-            return true;
-        }
-        
-        boolean added = addNode(root, data);
-        updateHeight(root);
-        return added;
+        final int tempSize = size;
+        this.root = insertNode(root, data);
+        return size > tempSize;
     }
     
-    private boolean addNode(Node<E> node, E data) {
-        if (node.data.compareTo(data) == 0) {
-            return false;
+    private Node<E> insertNode(Node<E> node, E data) {
+        
+        if (null == node) {
+            ++size;
+            return new Node<>(data);
         }
         
         if (node.data.compareTo(data) > 0) {
-            if (null == node.left) {
-                ++size;
-                node.left = new Node<>(data, node);
-                updateHeight(node);
-                return true;
-            }
-            
-            return addNode(node.left, data);
-        }
-        
-        if (null == node.right) {
-            ++size;
-            node.right = new Node<>(data, node);
-            updateHeight(node);
-            return true;
+            node.left = insertNode(node.left, data);
+        } else if (node.data.compareTo(data) < 0) {
+            node.right = insertNode(node.right, data);
+        } else {
+            return node;
         }
 
-        return addNode(node.right, data);
+        updateHeight(node);
+        return getBalancedNode(node);
     }
     
     public E search(E data) {
@@ -111,7 +98,6 @@ public class AVLTree<E extends Comparable<E>> {
 
         --size;
         root = removeValue(root, data);
-        updateHeight(root);
         return true;
     }
     
@@ -140,7 +126,7 @@ public class AVLTree<E extends Comparable<E>> {
         }
         
         updateHeight(node);
-        return node;
+        return getBalancedNode(node);
     }
     
     private Node<E> searchPredecessor(Node<E> node) {
@@ -192,20 +178,16 @@ public class AVLTree<E extends Comparable<E>> {
         return null == root;
     }
     
+    public void printNode() {
+        printNode(root);
+    }
+    
     private void updateHeight(Node<E> node) {
         if (null == node) {
             return;
         }
         
-        node.height = Math.max(height(node.left), height(node.right));
-    }
-    
-    private int height(Node<E> node) {
-        if (null == node) {
-            return -1;
-        }
-        
-        return node.height;
+        node.height = Math.max(height(node.left), height(node.right)) + 1;
     }
     
     private int balanceFactor(Node<E> node) {
@@ -216,17 +198,152 @@ public class AVLTree<E extends Comparable<E>> {
         return height(node.left) - height(node.right);
     }
     
+    private int height(Node<E> node) {
+        if (null == node) {
+            return -1;
+        }
+        
+        return node.height;
+    }
+    
+    private Node<E> rightRotation(Node<E> node) {
+        var tempLeft = node.left;
+        var grandChild = tempLeft.right;
+        
+        tempLeft.right = node;
+        node.left = grandChild;
+        
+        updateHeight(node);
+        updateHeight(tempLeft);
+        
+        return tempLeft;
+    }
+    
+    private Node<E> leftRotation(Node<E> node) {
+        var tempRight = node.right;
+        var grandChild = tempRight.left;
+        
+        tempRight.left = node;
+        node.right = grandChild;
+        
+        updateHeight(node);
+        updateHeight(tempRight);
+        
+        return tempRight;
+    }
+    
+    private Node<E> getBalancedNode(Node<E> node) {
+      
+        int balance = balanceFactor(node);
+        if (balance > 1) { //left heavy
+            if (balanceFactor(node.left) < 0) { //left-right heavy
+                node.left = leftRotation(node.left);
+            }
+            
+            node = rightRotation(node);
+        } else if (balance < -1) { //right heavy
+            if (balanceFactor(node.right) > 0) { //right-left heavy
+                node.right = rightRotation(node.right);
+            }
+            
+            node = leftRotation(node);
+        }
+        
+        return node;
+    }
+    
     private static class Node<E> {
         
         private E data;
         private int height;
         private Node<E> left;
         private Node<E> right;
-        private Node<E> parent;
 
-        public Node(E data, Node<E> parent) {
+        public Node(E data) {
             this.data = data;
-            this.parent = parent;
         }
+    }
+    
+    private static <T extends Comparable<?>> void printNode(Node<T> root) {
+        int maxLevel = maxLevel(root);
+
+        printNodeInternal(Collections.singletonList(root), 1, maxLevel);
+    }
+
+    private static <T extends Comparable<?>> void printNodeInternal(List<Node<T>> nodes, int level, int maxLevel) {
+        if (nodes.isEmpty() || isAllElementsNull(nodes))
+            return;
+
+        int floor = maxLevel - level;
+        int endgeLines = (int) Math.pow(2, (Math.max(floor - 1, 0)));
+        int firstSpaces = (int) Math.pow(2, (floor)) - 1;
+        int betweenSpaces = (int) Math.pow(2, (floor + 1)) - 1;
+
+        printWhitespaces(firstSpaces);
+
+        List<Node<T>> newNodes = new ArrayList<Node<T>>();
+        for (Node<T> node : nodes) {
+            if (node != null) {
+                System.out.print(node.data);
+                newNodes.add(node.left);
+                newNodes.add(node.right);
+            } else {
+                newNodes.add(null);
+                newNodes.add(null);
+                System.out.print(" ");
+            }
+
+            printWhitespaces(betweenSpaces);
+        }
+        System.out.println("");
+
+        for (int i = 1; i <= endgeLines; i++) {
+            for (int j = 0; j < nodes.size(); j++) {
+                printWhitespaces(firstSpaces - i);
+                if (nodes.get(j) == null) {
+                    printWhitespaces(endgeLines + endgeLines + i + 1);
+                    continue;
+                }
+
+                if (nodes.get(j).left != null)
+                    System.out.print("/");
+                else
+                    printWhitespaces(1);
+
+                printWhitespaces(i + i - 1);
+
+                if (nodes.get(j).right != null)
+                    System.out.print("\\");
+                else
+                    printWhitespaces(1);
+
+                printWhitespaces(endgeLines + endgeLines - i);
+            }
+
+            System.out.println("");
+        }
+
+        printNodeInternal(newNodes, level + 1, maxLevel);
+    }
+
+    private static void printWhitespaces(int count) {
+        for (int i = 0; i < count; i++)
+            System.out.print(" ");
+    }
+
+    private static <T extends Comparable<?>> int maxLevel(Node<T> node) {
+        if (node == null)
+            return 0;
+
+        return Math.max(maxLevel(node.left), maxLevel(node.right)) + 1;
+    }
+
+    private static <T> boolean isAllElementsNull(List<T> list) {
+        for (Object object : list) {
+            if (object != null)
+                return false;
+        }
+
+        return true;
     }
 }
