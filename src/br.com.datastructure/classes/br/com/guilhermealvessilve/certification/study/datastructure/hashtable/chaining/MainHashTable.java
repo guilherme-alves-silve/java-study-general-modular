@@ -24,6 +24,10 @@ public class MainHashTable {
                 .noneMatch(i -> hashTable.put(i, "Value-" + i) == null));
         System.out.println("Size must be 100: " + (qty == hashTable.size()));
         
+        //Should not throw exception
+        TestUtils.randomStream(0, qty * 10)
+                .forEach(key -> hashTable.get(key));
+        
         hashTable.printElementsPerBucket();
         
         System.out.println(hashTable);

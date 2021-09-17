@@ -59,12 +59,12 @@ public class HashTable<K, V> implements IHashTable<K, V> {
     }
     
     private Node<K, V> search(final int bucket, final K key) {
-        var actual = table[bucket];
-        while (actual.next != null && !key.equals(actual.key)) {
-            actual = actual.next;
+        var node = table[bucket];
+        while (node.next != null && !key.equals(node.key)) {
+            node = node.next;
         }
         
-        return actual;
+        return node;
     }
     
     @Override
