@@ -1,8 +1,6 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.tree.bst;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import br.com.guilhermealvessilve.certification.study.datastructure.utils.TestUtils;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -21,7 +19,7 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         
         final var threads = 10;
         executeParallel(threads, () -> {
-            final var ints = randomList(0, 1000);
+            final var ints = TestUtils.randomList(0, 1000);
             ints.forEach(tree::add);
             return null;
         });
@@ -30,7 +28,7 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         
         final var foundAll = new AtomicBoolean(true);
         executeParallel(threads, () -> {
-            final var innerFoundAll = randomList(0, 1000)
+            final var innerFoundAll = TestUtils.randomList(0, 1000)
                 .stream()
                 .allMatch(value -> tree.search(value) != null);
             
@@ -51,7 +49,7 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         
         final var removedAll = new AtomicBoolean(false);
         executeParallel(threads, () -> {
-            randomList(0, 1000)
+            TestUtils.randomList(0, 1000)
                 .stream()
                 .forEach(value -> tree.remove(value));
             
@@ -64,7 +62,7 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         
         System.out.println("Removed async");
         
-        randomList(0, 1000)
+        TestUtils.randomList(0, 1000)
                 .stream()
                 .forEach(value -> tree.remove(value));
         
@@ -75,15 +73,6 @@ public class MainConcurrentBinarySearchTreeReadWrite {
         System.out.println("tree.traverse(): " + tree.traverse());
         System.out.println("tree.getMin(): " + tree.getMin());
         System.out.println("tree.getMax(): " + tree.getMax());
-    }
-    
-    private static List<Integer> randomList(int startInclusive, int endExclusive) {
-        final var ints = IntStream.range(startInclusive, endExclusive)
-                .collect(() -> new ArrayList<Integer>(), 
-                        (list, intValue) -> list.add(intValue), 
-                        (list1, list2) -> list1.addAll(list2));
-        Collections.shuffle(ints);
-        return ints;
     }
     
     private static void executeParallel(int threads, Callable<Void> task) {

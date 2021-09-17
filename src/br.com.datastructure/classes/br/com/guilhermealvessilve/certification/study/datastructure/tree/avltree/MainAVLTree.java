@@ -1,10 +1,7 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.tree.avltree;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import br.com.guilhermealvessilve.certification.study.datastructure.utils.TestUtils;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -20,12 +17,12 @@ public class MainAVLTree {
         
         final var tree = new AVLTree<Integer>();
         
-        final var ints = randomList(0, total);
+        final var ints = TestUtils.randomList(0, total);
         boolean allInserted = ints.stream().allMatch(tree::insert);
         
         final var traversed = tree.traverse();
         
-        final var foundAll = randomList(0, total)
+        final var foundAll = TestUtils.randomList(0, total)
             .stream()
             .allMatch(value -> tree.search(value) != null);
 
@@ -40,7 +37,7 @@ public class MainAVLTree {
 
         System.out.println("Removing");
         
-        boolean removedAll = randomList(0, total)
+        boolean removedAll = TestUtils.randomList(0, total)
                 .stream()
                 .allMatch(value -> Objects.equals(tree.search(value), value) && tree.remove(value));
         
@@ -52,15 +49,6 @@ public class MainAVLTree {
         System.out.println("tree.traverse(): " + tree.traverse());
         System.out.println("tree.getMin(): " + tree.getMin());
         System.out.println("tree.getMax(): " + tree.getMax());
-    }
-    
-    private static List<Integer> randomList(int startInclusive, int endExclusive) {
-        final var ints = IntStream.range(startInclusive, endExclusive)
-                .collect(() -> new ArrayList<Integer>(), 
-                        (list, intValue) -> list.add(intValue), 
-                        (list1, list2) -> list1.addAll(list2));
-        Collections.shuffle(ints);
-        return ints;
     }
     
     private static void testRotations() throws InterruptedException {
