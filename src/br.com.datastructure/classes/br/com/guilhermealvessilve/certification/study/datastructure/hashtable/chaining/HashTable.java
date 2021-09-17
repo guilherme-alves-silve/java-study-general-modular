@@ -60,7 +60,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
     
     private Node<K, V> search(final int bucket, final K key) {
         var node = table[bucket];
-        while (node.next != null && !key.equals(node.key)) {
+        while (!key.equals(node.key) && node.next != null) {
             node = node.next;
         }
         
@@ -77,7 +77,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
 
         Node<K, V> before = null;        
         var actual = table[bucket];
-        while (actual.next != null && !key.equals(actual.key)) {
+        while (!key.equals(actual.key) && actual.next != null) {
             before = actual;
             actual = actual.next;
         }
