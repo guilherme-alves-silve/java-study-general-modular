@@ -1,7 +1,6 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.tree.btree;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import static java.util.Objects.requireNonNull;
@@ -11,7 +10,10 @@ import static java.util.Objects.requireNonNull;
  * @author Alves
  *
  * Reference:
- * https://www.fatalerrors.org/a/data-structure-and-algorithm-b-tree-graphic-explanation-including-complete-code.html
+ *  https://www.fatalerrors.org/a/data-structure-and-algorithm-b-tree-graphic-explanation-including-complete-code.html
+ *  https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/BTree.java
+ *  https://github.com/cptanalatriste/Database-Algorithms/blob/master/src/pe/edu/pucp/database/algorithms/btree/BTree.java
+ *  https://programmer.group/b-tree-java-implementation.html
  */
 public class BTree<K extends Comparable<K>, V> {
 
@@ -42,9 +44,9 @@ public class BTree<K extends Comparable<K>, V> {
             return null;
         }
 
-        int index = Collections.binarySearch(node.entries, new Entry(key));
+        int index = Collections.binarySearch(node.keys, new Entry(key));
         if (index >= 0) {
-            return node.entries.get(index);
+            return node.keys.get(index);
         }
 
         if (node.isLeaf()) {
@@ -64,8 +66,8 @@ public class BTree<K extends Comparable<K>, V> {
             return null;
         }
 
-        int index = Collections.binarySearch(node.entries, entry);
-        if (index > 0) {
+        int index = Collections.binarySearch(node.keys, entry);
+        if (index >= 0) {
             return node;
         }
 
@@ -82,6 +84,7 @@ public class BTree<K extends Comparable<K>, V> {
         requireNonNull(value);
         var entry = new Entry(key, value);
         if (null == root) {
+            ++size;
             root = new Node(entry);
             return true;
         }
@@ -94,17 +97,17 @@ public class BTree<K extends Comparable<K>, V> {
     private void putNode(Node node, Entry entry) {
         if (node.isLeaf()) {
             ++size;
-            if (node.entries.size() < maxKeys) {
-                node.addEntry(entry);
+            if (node.keys.size() < maxKeys) {
+                node.addKey(entry);
                 return;
             }
 
-            node.addEntry(entry);
+            node.addKey(entry);
             split(node);
             return;
         }
 
-        int index = Collections.binarySearch(node.entries, entry);
+        int index = Collections.binarySearch(node.keys, entry);
         if (index < 0) {
             int searchIndex = -index - 1;
             putNode(node.children.get(searchIndex), entry);
@@ -112,14 +115,14 @@ public class BTree<K extends Comparable<K>, V> {
     }
 
     private void split(Node node) {
-        int mid = node.entries.size() / 2;
-        var separateEntry = node.entries.get(mid);
+        int mid = node.keys.size() / 2;
+        var separateEntry = node.keys.get(mid);
 
         var left = new Node();
-        left.entries.addAll(node.entries.subList(0, mid - 1));
+        left.keys.addAll(node.keys.subList(0, mid));
 
         var right = new Node();
-        right.entries.addAll(node.entries.subList(mid + 1, node.entries.size()));
+        right.keys.addAll(node.keys.subList(mid + 1, node.keys.size()));
 
         if (node.isInternal()) {
             var leftChildren = node.children.subList(0, mid + 1);
@@ -137,11 +140,11 @@ public class BTree<K extends Comparable<K>, V> {
         }
 
         var parent = node.parent;
-        parent.addEntry(separateEntry)
+        parent.addKey(separateEntry)
               .addChildren(left, right)
               .removeChild(node);
 
-        if (parent.entries.size() > maxKeys) {
+        if (parent.keys.size() > maxKeys) {
             split(parent);
         }
     }
@@ -153,9 +156,16 @@ public class BTree<K extends Comparable<K>, V> {
             return false;
         }
 
-        int keyIndex = Collections.binarySearch(node.entries, new Entry(key));
-        node.entries.remove(keyIndex);
-        if (node.entries.size() < minKeys) {
+        --size;
+        int keyIndex = Collections.binarySearch(node.keys, new Entry(key));
+        node.keys.remove(keyIndex);
+        
+        if (node.parent == null && node.isLeaf()) {
+            root = null;
+            return true;
+        }
+        
+        if (node.keys.size() < minKeys) {
             handleRemoveCases(node, keyIndex);
         }
 
@@ -165,18 +175,25 @@ public class BTree<K extends Comparable<K>, V> {
     private void handleRemoveCases(Node node, int deletedKeyIndex) {
         if (node.isInternal()) {
             handleInternalNodeRemoveCase(node, deletedKeyIndex);
+            if (!validate()) {
+                System.out.println("handleInternalNodeRemoveCase is invalidating the tree!");
+            }
+            
             return;
         }
 
         handleLeafNodeRemoveCase(node.parent, node);
+        if (!validate()) {
+            System.out.println("handleLeafNodeRemoveCase is invalidating the tree!");
+        }
     }
 
     private void handleInternalNodeRemoveCase(Node node, int deletedKeyIndex) {
         var left = node.getChildAt(deletedKeyIndex);
         var right = node.getChildAt(deletedKeyIndex + 1);
 
-        int leftEntriesSize = left.entries.size();
-        int rightEntriesSize = right.entries.size();
+        int leftEntriesSize = left.keys.size();
+        int rightEntriesSize = right.keys.size();
 
         int maxSize = Math.max(leftEntriesSize, rightEntriesSize);
         if (maxSize <= minKeys) {
@@ -188,7 +205,7 @@ public class BTree<K extends Comparable<K>, V> {
                 ? left.pollGreatestEntry()
                 : right.pollSmallestEntry();
 
-        node.addEntry(entry);
+        node.addKey(entry);
     }
 
     private void handleLeafNodeRemoveCase(Node parent, Node node) {
@@ -198,8 +215,8 @@ public class BTree<K extends Comparable<K>, V> {
         var left = parent.getLeftBrother(nodeIndex);
         var right = parent.getRightBrother(nodeIndex);
 
-        int leftEntriesSize = left.entries.size();
-        int rightEntriesSize = right.entries.size();
+        int leftEntriesSize = left.keys.size();
+        int rightEntriesSize = right.keys.size();
         int maxSize = Math.max(leftEntriesSize, rightEntriesSize);
 
         if (maxSize <= minKeys) {
@@ -222,19 +239,20 @@ public class BTree<K extends Comparable<K>, V> {
     private void merge(Node parent, Node node, Node brother, int parentEntryIndex) {
 
         var newNode = new Node();
-        newNode.entries.add(parent.pollEntryAt(parentEntryIndex));
-        newNode.addAllEntries(node.entries, brother.entries);
+        newNode.keys.add(parent.pollEntryAt(parentEntryIndex));
+        newNode.addAllKeys(node.keys, brother.keys);
+        newNode.addAllChildren(node.children, brother.children);
 
         parent.removeChildren(node, brother);
 
-        if (parent.entries.isEmpty()) {
+        if (parent.keys.isEmpty()) {
             root = newNode;
             return;
         }
 
         parent.addChild(newNode);
 
-        if (parent.entries.size() >= minKeys) {
+        if (parent.keys.size() >= minKeys) {
             return;
         }
         
@@ -247,8 +265,8 @@ public class BTree<K extends Comparable<K>, V> {
         var left = grandParent.getLeftBrother(nodeIndex);
         var right = grandParent.getRightBrother(nodeIndex);
 
-        int leftEntriesSize = left.entries.size();
-        int rightEntriesSize = right.entries.size();
+        int leftEntriesSize = left.keys.size();
+        int rightEntriesSize = right.keys.size();
         int minSize = Math.min(leftEntriesSize, rightEntriesSize);
 
         if (leftEntriesSize > 0 && leftEntriesSize == minSize) {
@@ -261,8 +279,7 @@ public class BTree<K extends Comparable<K>, V> {
     private void merge(Node parent, Node left, Node right) {
 
         var newNode = new Node();
-        newNode.addAllEntries(left.entries, right.entries);
-        newNode.addAllChildren(left.children, right.children);
+        newNode.addAllKeys(left.keys, right.keys);
         
         parent.removeChildren(left, right)
               .addChild(newNode);
@@ -270,36 +287,67 @@ public class BTree<K extends Comparable<K>, V> {
 
     private void rightRotate(Node parent, Node node, Node left, int nodeIndex) {
         var parentEntry = parent.pollEntryAt(nodeIndex);
-        node.addEntry(parentEntry);
+        node.addKey(parentEntry);
         
         var leftEntry = left.pollGreatestEntry();
-        parent.addEntry(leftEntry);
+        parent.addKey(leftEntry);
     }
 
     private void leftRotate(Node parent, Node node, Node right, int nodeIndex) {
         
         var parentEntry = parent.pollEntryAt(nodeIndex);
-        node.addEntry(parentEntry);
+        node.addKey(parentEntry);
         
         var rightEntry = right.pollSmallestEntry();
-        parent.addEntry(rightEntry);
+        parent.addKey(rightEntry);
+    }
+    
+    public int size() {
+        return size;
+    }
+    
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    
+    public List<K> traverse(){
+        if (null == root) {
+            return Collections.emptyList();
+        }
+        
+        var elements = new ArrayList<K>(size);
+        traverse(root, elements);
+        return elements;
+    }
+    
+    private void traverse(Node node, List<K> elements){
+        int i;
+        for (i = 0; i < node.keys.size(); i++){
+            if (!node.children.isEmpty())
+                traverse(node.children.get(i), elements);
+            elements.add((K) node.keys.get(i).key);
+        }
+
+        if (!node.children.isEmpty()){
+            traverse(node.children.get(i), elements);
+        }
     }
 
     private static class Node implements Comparable<Node> {
 
         private Node parent;
-        private final List<Entry> entries;
+        private final List<Entry> keys;
         private final List<Node> children;
 
         public Node() {
-            this.entries = new ArrayList<>();
+            this.keys = new ArrayList<>();
             this.children = new ArrayList<>();
         }
         
         public Node(Entry entry) {
-            this.entries = new ArrayList<>();
+            this.keys = new ArrayList<>();
             this.children = new ArrayList<>();
-            this.entries.add(entry);
+            this.keys.add(entry);
         }
 
         private boolean isLeaf() {
@@ -310,9 +358,9 @@ public class BTree<K extends Comparable<K>, V> {
             return !children.isEmpty();
         }
 
-        public Node addEntry(Entry entry) {
-            entries.add(entry);
-            Collections.sort(entries);
+        public Node addKey(Entry entry) {
+            keys.add(entry);
+            Collections.sort(keys);
             return this;
         }
 
@@ -335,19 +383,22 @@ public class BTree<K extends Comparable<K>, V> {
             return this;
         }
         
-        private Node addAllEntries(List<Entry>... arrayOfEntries) {
-            Arrays.stream(arrayOfEntries).forEach(this::addEntries);
-            Collections.sort(this.entries);
+        private Node addAllKeys(List<Entry> keys1, List<Entry> keys2) {
+            addKeys(keys1);
+            addKeys(keys2);
+            Collections.sort(this.keys);
             return this;
         }
         
-        private Node addAllChildren(List<Node>... arrayOfChildren) {
-            Arrays.stream(arrayOfChildren).forEach(this::addChildren);
+        private Node addAllChildren(List<Node> children1, List<Node> children2) {
+            addChildren(children1);
+            addChildren(children2);
+            Collections.sort(this.children);
             return this;
         }
-
-        private Node addEntries(List<Entry> entries) {
-            this.entries.addAll(entries);
+        
+        private Node addKeys(List<Entry> entries) {
+            this.keys.addAll(entries);
             return this;
         }
         
@@ -371,13 +422,13 @@ public class BTree<K extends Comparable<K>, V> {
         }
 
         private Entry pollEntryAt(int index) {
-            var entry = entries.get(index);
-            entries.remove(index);
+            var entry = keys.get(index);
+            keys.remove(index);
             return entry;
         }
 
         private Entry pollGreatestEntry() {
-            return pollEntryAt(entries.size() - 1);
+            return pollEntryAt(keys.size() - 1);
         }
 
         private Entry pollSmallestEntry() {
@@ -388,22 +439,22 @@ public class BTree<K extends Comparable<K>, V> {
             return childIndex == 0 ? NULL_NODE : children.get(childIndex - 1);
         }
         
-        private Node getRightBrother(int nodeIndex) {
-            return nodeIndex == children.size() - 1 ? NULL_NODE : children.get(nodeIndex + 1);
+        private Node getRightBrother(int childIndex) {
+            return childIndex == children.size() - 1 ? NULL_NODE : children.get(childIndex + 1);
         }
         
         private int indexOfChild(Node child) {
-            return Collections.binarySearch(children, child);
+            return children.indexOf(child);
         }
 
         @Override
         public int compareTo(final Node other) {
-            return entries.get(0).key.compareTo(other.entries.get(0).key);
+            return keys.get(0).compareTo(other.keys.get(0));
         }
 
         @Override
         public String toString() {
-            return "Node{entries=" + entries + ", children=" + children + '}';
+            return "Node{entries=" + keys + ", children=" + children + '}';
         }
     }
 
@@ -434,6 +485,131 @@ public class BTree<K extends Comparable<K>, V> {
 
     @Override
     public String toString() {
-        return "BTree{minKeys=" + minKeys + ", maxKeys=" + maxKeys + ", size=" + size + ", root=" + root + '}';
+        return TreePrinter.getString(this);
+    }
+
+    public boolean validate() {
+        if (root == null) return true;
+        return validateNode(root);
+    }
+    
+    private boolean validateNode(Node node) {
+        
+        int minChildrenSize = minKeys + 1; 
+        int maxKeySize = 2 * minKeys; 
+        int maxChildrenSize = maxKeySize + 1;
+        
+        int keySize = node.keys.size();
+        if (keySize > 1) {
+            // Make sure the keys are sorted
+            for (int i = 1; i < keySize; i++) {
+                Entry p = node.keys.get(i - 1);
+                Entry n = node.keys.get(i);
+                if (p.compareTo(n) > 0)
+                    return false;
+            }
+        }
+        int childrenSize = node.children.size();
+        if (node.parent == null) {
+            // root
+            if (keySize > maxKeys) {
+                // check max key size. root does not have a min key size
+                return false;
+            } else if (childrenSize == 0) {
+                // if root, no children, and keys are valid
+                return true;
+            } else if (childrenSize < 2) {
+                // root should have zero or at least two children
+                return false;
+            } else if (childrenSize > maxChildrenSize) {
+                return false;
+            }
+        } else {
+            // non-root
+            if (keySize < minKeys) {
+                return false;
+            } else if (keySize > maxKeySize) {
+                return false;
+            } else if (childrenSize == 0) {
+                return true;
+            } else if (keySize != (childrenSize - 1)) {
+                // If there are chilren, there should be one more child then
+                // keys
+                return false;
+            } else if (childrenSize < minChildrenSize) {
+                return false;
+            } else if (childrenSize > maxChildrenSize) {
+                return false;
+            }
+        }
+
+        Node first = node.children.get(0);
+        // The first child's last key should be less than the node's first key
+        if (first.keys.get(first.keys.size()- 1).compareTo(node.keys.get(0)) > 0)
+            return false;
+
+        Node last = node.children.get(node.children.size() - 1);
+        // The last child's first key should be greater than the node's last key
+        if (last.keys.get(0).compareTo(node.keys.get(node.keys.size()- 1)) < 0)
+            return false;
+
+        // Check that each node's first and last key holds it's invariance
+        for (int i = 1; i < node.keys.size(); i++) {
+            Entry p = node.keys.get(i - 1);
+            Entry n = node.keys.get(i);
+            Node c = node.children.get(i);
+            if (p.compareTo(c.keys.get(0)) > 0)
+                return false;
+            if (n.compareTo(c.keys.get(c.keys.size()- 1)) < 0)
+                return false;
+        }
+
+        for (int i = 0; i < node.children.size(); i++) {
+            Node c = node.children.get(i);
+            boolean valid = this.validateNode(c);
+            if (!valid)
+                return false;
+        }
+
+        return true;
+    }
+
+    private static class TreePrinter {
+
+        public static <K extends Comparable<K>, V> String getString(BTree<K, V> tree) {
+            if (tree.root == null) {
+                return "Tree has no nodes.";
+            }
+            
+            return getString(tree.root, "", true);
+        }
+
+        private static <K extends Comparable<K>, V> String getString(Node node, String prefix, boolean isTail) {
+            StringBuilder builder = new StringBuilder();
+
+            builder.append(prefix).append((isTail ? "└── " : "├── "));
+            for (int i = 0; i < node.keys.size(); i++) {
+                Entry value = node.keys.get(i);
+                builder.append(value.value);
+                if (i < node.keys.size() - 1) {
+                    builder.append(", ");
+                }
+            }
+            builder.append("\n");
+
+            if (node.children != null) {
+                for (int i = 0; i < node.children.size() - 1; i++) {
+                    Node obj = node.children.get(i);
+                    builder.append(getString(obj, prefix + (isTail ? "    " : "│   "), false));
+                }
+                
+                if (node.children.size() >= 1) {
+                    Node obj = node.children.get(node.children.size() - 1);
+                    builder.append(getString(obj, prefix + (isTail ? "    " : "│   "), true));
+                }
+            }
+
+            return builder.toString();
+        }
     }
 }
