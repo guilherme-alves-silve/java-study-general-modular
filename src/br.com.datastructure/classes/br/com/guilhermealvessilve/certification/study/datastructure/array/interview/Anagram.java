@@ -12,7 +12,6 @@ public class Anagram {
      * For example: restful and fluster are anagrams.
      * Reference:
      *  https://www.udemy.com/course/algorithms-and-data-structures/learn/lecture/11573246#overview
-     * @param args 
      */
     public static void main(String[] args) {
         System.out.println("isAnagram(restful, fluster): " + isAnagram("restful", "fluster")); // true

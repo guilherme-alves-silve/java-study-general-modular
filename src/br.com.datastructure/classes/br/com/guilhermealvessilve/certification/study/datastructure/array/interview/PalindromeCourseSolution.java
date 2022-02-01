@@ -4,7 +4,7 @@ package br.com.guilhermealvessilve.certification.study.datastructure.array.inter
  *
  * @author Alves
  */
-public class Palindrome {
+public class PalindromeCourseSolution {
 
     /**
      * "A palindrome is a string that reads the same forward and backward"
@@ -26,13 +26,15 @@ public class Palindrome {
         char[] array = word.toLowerCase()
                 .replaceAll("\\s*", "")
                 .toCharArray();
-        int length = array.length;
-        int middle = length / 2;
-       
-        for (int i = 0; i < middle; i++) {
-            if (array[i] != array[length - i - 1]) return false;
-        }
+        int forward = 0;
+        int backward = array.length - 1;
         
+        while (forward <= backward) {
+            if (array[forward] != array[backward]) return false;
+            forward++;
+            backward--;
+        }
+
         return true;
     }
 }
