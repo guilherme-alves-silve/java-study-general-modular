@@ -4,7 +4,7 @@ package br.com.guilhermealvessilve.certification.study.datastructure.array.inter
  *
  * @author Alves
  */
-public class ReverseInteger {
+public class ReverseIntegerCourseSolution {
     
     /**
      * Your task is to design an efficient algorithm to reverse a given integer. 
@@ -15,19 +15,20 @@ public class ReverseInteger {
     public static void main(String[] args) {
         System.out.println("reverseInt(1234): " + reverseInt(1234));// 4321
         System.out.println("reverseInt(8989): " + reverseInt(8989));// 9898
+        System.out.println("reverseInt(1000): " + reverseInt(1000));// 1
+        System.out.println("reverseInt(1002): " + reverseInt(1002));// 2001
     }
 
-    private static int reverseInt(int value) {
-        char[] array = String.valueOf(value).toCharArray();
+    private static int reverseInt(int n) {
         
-        int length = array.length;
-        int middle = length / 2;
-        for (int i = 0; i < middle; i++) {
-            char temp = array[i];
-            array[i] = array[length - i - 1];
-            array[length - i - 1] = temp;
+        int remainder;
+        int reversed = 0;
+        while (n > 0) {
+            remainder = n % 10;
+            n /= 10;
+            reversed = reversed * 10 + remainder;
         }
-            
-        return Integer.parseInt(new String(array));
+        
+        return reversed;
     }
 }
