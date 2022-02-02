@@ -45,5 +45,9 @@ public class MainList {
         System.out.println("list2.size: " + list2.size());
         System.out.println("list2.isEmpty: " + list2.isEmpty());
         System.out.println("list2: " + list2);
+        
+        var list3 = new List<Integer>(0);
+        list3.add(1, 2, 3);
+        System.out.println("list3: " + list3);
     }
 }

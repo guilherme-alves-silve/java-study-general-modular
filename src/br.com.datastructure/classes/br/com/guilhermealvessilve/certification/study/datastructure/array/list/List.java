@@ -126,7 +126,8 @@ public class List<E> implements Iterable<E> {
     
     private void growSizeIfNecessary() {
         if (size < array.length) return;
-        var newArray = new Object[array.length * 2];
+        int newSize = array.length == 0? BASE_SIZE : array.length * 2;
+        var newArray = new Object[newSize];
         System.arraycopy(array, 0, newArray, 0, array.length);
         array = newArray;
     }
