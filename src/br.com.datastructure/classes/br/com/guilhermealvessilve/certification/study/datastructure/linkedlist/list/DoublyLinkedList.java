@@ -71,6 +71,23 @@ public class DoublyLinkedList<E> implements Iterable<E> {
         return node.data;
     }
     
+    public E getMiddleValue() {
+        
+        var slow = head;
+        var fast = head;
+        
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        
+        return slow.data;
+    }
+
+    public void reverse() {
+        
+    }
+    
     public E remove(int pos) {
         if (pos < 0 || pos >= size) throw new IndexOutOfBoundsException();
         
