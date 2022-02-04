@@ -7,7 +7,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Alves
  */
-public class DoublyLinkedList<E> implements Iterable<E> {
+public class LinkedList<E> implements Iterable<E> {
     
     private int size;
     private Node<E> head;
@@ -22,7 +22,6 @@ public class DoublyLinkedList<E> implements Iterable<E> {
             tail = node;
         } else {
             tail.next = node;
-            node.previous = tail;
             tail = node;
         }
     }
@@ -42,7 +41,6 @@ public class DoublyLinkedList<E> implements Iterable<E> {
             var temp = head;
             head = node;
             head.next = temp;
-            temp.previous = head;
         }
     }
     
@@ -86,19 +84,6 @@ public class DoublyLinkedList<E> implements Iterable<E> {
 
     public void reverse() {
         
-        var node = tail;
-        Node<E> nowPrevious;
-        while (node != null) {
-            nowPrevious = node.next;
-            var nowNext = node.previous;
-            node.previous = nowPrevious;
-            node.next = nowNext;
-            node = nowNext;
-        }
-        
-        var tempHead = head;
-        head = tail;
-        tail = tempHead;
     }
     
     public E remove(int pos) {
@@ -159,18 +144,6 @@ public class DoublyLinkedList<E> implements Iterable<E> {
         --size;
         var temp = head;
         head = head.next;
-        head.previous = null;
-        return temp.data;
-    }
-    
-    public E pollLast() {
-        if (isEmpty()) {
-            return null;
-        }
-        
-        --size;
-        var temp = tail;
-        tail = tail.previous;
         return temp.data;
     }
     
@@ -184,7 +157,7 @@ public class DoublyLinkedList<E> implements Iterable<E> {
     
     @Override
     public Iterator<E> iterator() {
-        return new DoublyLinkedListIterator<>(size, head);
+        return new LinkedListIterator<>(size, head);
     }
 
     @Override
@@ -207,7 +180,6 @@ public class DoublyLinkedList<E> implements Iterable<E> {
     
     private static class Node<E> {
         E data;
-        Node<E> previous;
         Node<E> next;
 
         Node(E data) {
@@ -215,12 +187,12 @@ public class DoublyLinkedList<E> implements Iterable<E> {
         }
     }
     
-    private static class DoublyLinkedListIterator<E> implements Iterator<E> {
+    private static class LinkedListIterator<E> implements Iterator<E> {
     
         int size;
         Node<E> node;
 
-        public DoublyLinkedListIterator(int size, Node<E> node) {
+        public LinkedListIterator(int size, Node<E> node) {
             this.size = size;
             this.node = node;
         }

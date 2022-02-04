@@ -1,12 +1,12 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.linkedlist.interview;
 
-import br.com.guilhermealvessilve.certification.study.datastructure.linkedlist.list.LinkedList;
+import br.com.guilhermealvessilve.certification.study.datastructure.linkedlist.list.DoublyLinkedList;
 
 /**
  *
  * @author Alves
  */
-public class MainReverseLinkedList {
+public class MainReverseDoublyLinkedList {
 
     /**
      * Construct an in-place algorithm (without the need for extra memory) to reverse a linked list!
@@ -15,7 +15,7 @@ public class MainReverseLinkedList {
      *  https://www.udemy.com/course/algorithms-and-data-structures/learn/lecture/11259686#overview
      */
     public static void main(String[] args) {
-        var list = new LinkedList<Integer>();
+        var list = new DoublyLinkedList<Integer>();
         list.add(1, 2, 3, 4);
         System.out.println("list: " + list);
         list.reverse();
