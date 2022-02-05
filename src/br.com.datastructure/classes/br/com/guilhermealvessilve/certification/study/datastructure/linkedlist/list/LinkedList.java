@@ -1,5 +1,6 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.linkedlist.list;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import static java.util.Objects.requireNonNull;
 
@@ -83,7 +84,20 @@ public class LinkedList<E> implements Iterable<E> {
     }
 
     public void reverse() {
+    
+        var oldHead = head;
+        Node<E> previous = null;
+        Node<E> current = head;
+        Node<E> next;
+        while (current != null) {
+            next = current.next;
+            current.next = previous;
+            previous = current;
+            current = next;
+        }
         
+        head = previous;
+        tail = oldHead;
     }
     
     public E remove(int pos) {
