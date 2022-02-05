@@ -144,7 +144,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
     }
     
     private E getMinValue(Node<E> node, E minValue) {
-        if (null == node || minValue.compareTo(node.data) < 0) {
+        if (null == node) {
             return minValue;
         }
         
@@ -160,7 +160,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
     }
     
     private E getMaxValue(Node<E> node, E maxValue) {
-        if (null == node || maxValue.compareTo(node.data) > 0) {
+        if (null == node) {
             return maxValue;
         }
         
