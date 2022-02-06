@@ -16,11 +16,18 @@ public class MainQueueWithStack {
     public static void main(String[] args) {
         var queue = new QueueWithStack<Integer>();
         queue.enqueue(10, 18, 30);
+        System.out.println("queue.size: " + queue.size()); // 3
+        System.out.println("queue.isEmpty: " + queue.isEmpty()); // false
         System.out.println("queue.pop: " + queue.dequeue());
+        System.out.println("queue.size: " + queue.size()); // 2
         queue.enqueue(35);
         int size = queue.size();
         for (int i = 0; i < size; i++) {
             System.out.println("queue.pop: " + queue.dequeue());
         }
+        
+        System.out.println("queue.pop: " + queue.dequeue());
+        System.out.println("queue.isEmpty: " + queue.isEmpty()); // true
+        System.out.println("queue.size: " + queue.size()); // 0
     }
 }
