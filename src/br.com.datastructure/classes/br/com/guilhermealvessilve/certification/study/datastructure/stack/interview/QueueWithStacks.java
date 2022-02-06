@@ -6,12 +6,12 @@ import br.com.guilhermealvessilve.certification.study.datastructure.stack.implem
  *
  * @author Alves
  */
-public class QueueWithStack<E extends Comparable<E>> {
+public class QueueWithStacks<E extends Comparable<E>> {
     
     private final Stack<E> enqueueStack;
     private final Stack<E> dequeueStack;
 
-    public QueueWithStack() {
+    public QueueWithStacks() {
         this.enqueueStack = new Stack<>();
         this.dequeueStack = new Stack<>();
     }
