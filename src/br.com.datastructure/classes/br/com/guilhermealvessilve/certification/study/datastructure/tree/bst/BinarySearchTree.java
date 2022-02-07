@@ -21,6 +21,20 @@ public class BinarySearchTree<E extends Comparable<E>> {
         return size > tempSize;
     }
     
+    @SuppressWarnings("unchecked")
+    public boolean[] insert(E... elements) {
+        if (Objects.requireNonNull(elements).length == 0) {
+            throw new IllegalArgumentException();
+        }
+        
+        boolean[] insertions = new boolean[elements.length];
+        for (int i = 0; i < elements.length; i++) {
+            insertions[i] = insert(elements[i]);
+        }
+        
+        return insertions;
+    }
+    
     private Node<E> insertNode(Node<E> node, E data) {
         
         if (null == node) {
@@ -173,6 +187,19 @@ public class BinarySearchTree<E extends Comparable<E>> {
     
     public boolean isEmpty() {
         return null == root;
+    }
+
+    public boolean identical(BinarySearchTree<E> other) {
+        Objects.requireNonNull(other);
+        if (size != other.size) return false;
+        return identicalNode(this.root, other.root);
+    }
+    
+    private boolean identicalNode(Node<E> node1, Node<E> node2) {
+        if (node1 == node2) return true;
+        if (node1.data.compareTo(node2.data) != 0) return false;
+        return identicalNode(node1.left, node2.left) &&
+                identicalNode(node1.right, node2.right);
     }
     
     private static class Node<E> {
