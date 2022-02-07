@@ -202,6 +202,28 @@ public class BinarySearchTree<E extends Comparable<E>> {
                 identicalNode(node1.right, node2.right);
     }
     
+    public E kthSmallest(int kth) {
+        return kthSmallest(kth, root);
+    }
+    
+    private E kthSmallest(int kth, Node<E> node) {
+        
+        if (null == node) return null;
+        
+        int n = treeSize(node.left) + 1;
+        
+        if (n == kth) return node.data;
+        
+        if (n > kth) return kthSmallest(kth, node.left);
+        
+        return kthSmallest(kth - n, node.right);
+    }
+    
+    private int treeSize(Node<E> node) {
+        if (null == node) return 0;
+        return treeSize(node.left) + treeSize(node.right) + 1;
+    }
+    
     private static class Node<E> {
         
         private E data;
