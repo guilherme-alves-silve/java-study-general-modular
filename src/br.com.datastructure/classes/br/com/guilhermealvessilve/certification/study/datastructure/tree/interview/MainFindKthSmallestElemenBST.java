@@ -17,12 +17,10 @@ public class MainFindKthSmallestElemenBST {
     public static void main(String[] args) {
         var bst = new BinarySearchTree<Integer>();
         bst.insert(12, 4, 1, 5, 20, 15, 24);
-        System.out.println("K-th smallests ");
-        //for (int i = 0; i < bst.size(); i++) {
-        //   System.out.println(i + " - " + bst.kthSmallest(i));
-        //}
-        System.out.println(bst.kthSmallest(7));
-        
-        // 1, 4, 5, 12, 15, 20, 24
+        System.out.println("K-th smallests");
+        for (int i = 0; i < bst.size(); i++) {
+           System.out.println(i + " - " + bst.kthSmallest(i));
+        }
+        //Result of eeach call: null, 1, 4, 5, 12, 15, 20, 24
     }
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.IntFunction;
+import java.util.function.ToIntFunction;
 
 /**
  *
@@ -217,6 +219,18 @@ public class BinarySearchTree<E extends Comparable<E>> {
         if (n > kth) return kthSmallest(kth, node.left);
         
         return kthSmallest(kth - n, node.right);
+    }
+    
+    public int sum(ToIntFunction<E> function) {
+        Objects.requireNonNull(function);
+        return sum(root, function);
+    }
+    
+    private int sum(Node<E> node, ToIntFunction<E> function) {
+        if (null == node) return 0;
+        return function.applyAsInt(node.data) +
+                sum(node.left, function) + 
+                sum(node.right, function);
     }
     
     private int treeSize(Node<E> node) {
