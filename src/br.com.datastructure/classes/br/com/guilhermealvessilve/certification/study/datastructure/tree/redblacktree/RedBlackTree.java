@@ -9,7 +9,7 @@ import static java.util.Objects.requireNonNull;
  * Based on some parts of the code below
  * Reference:
  *  https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/RedBlackTree.java
- *  https://www.happycoders.eu/algorithms/red-black-tree-java/#Left_Rotation
+ *  https://www.happycoders.eu/algorithms/red-black-tree-java
  *  https://github.com/geekific-official/geekific-youtube/blob/main/tree-redblack/src/main/java/com/youtube/geekific/RedBlackTree.java
  *  https://algs4.cs.princeton.edu/code/edu/princeton/cs/algs4/RedBlackBST.java.html
  * @author Alves
@@ -30,22 +30,14 @@ public class RedBlackTree<E extends Comparable<E>> {
     
     private Node<E> searchNode(Node<E> node, E data) {
         if (null == node) return null;
-        
-        if (node.data.compareTo(data) > 0) {
-            return searchNode(node.left, data);
-        } 
-        
-        if (node.data.compareTo(data) < 0) {
-            return searchNode(node.right, data);
-        }
-        
+        if (node.data.compareTo(data) > 0) return searchNode(node.left, data);
+        if (node.data.compareTo(data) < 0) return searchNode(node.right, data);
         return node;
     }
     
     public boolean insert(E data) {
         var newNode = new Node<E>(requireNonNull(data));
         int tempSize = size;
-        
         root = insertNode(root, newNode);
         fixBalance(newNode);
         return size > tempSize;
@@ -118,7 +110,7 @@ public class RedBlackTree<E extends Comparable<E>> {
         grandParent.color = RED;
     }
     
-    private Node<E> rotateRight(Node<E> node) {
+    private void rotateRight(Node<E> node) {
         var parent = node.parent;
         var tempLeft = node.left;
         var grandChild = tempLeft.right;
@@ -131,10 +123,9 @@ public class RedBlackTree<E extends Comparable<E>> {
         if (grandChild != null) grandChild.parent = node;
         
         replaceParentsChild(parent, node, tempLeft);
-        return tempLeft;
     }
     
-    private Node<E> rotateLeft(Node<E> node) {
+    private void rotateLeft(Node<E> node) {
         var parent = node.parent;
         var tempRight = node.right;
         var grandChild = tempRight.left;
@@ -147,7 +138,6 @@ public class RedBlackTree<E extends Comparable<E>> {
         if (grandChild != null) grandChild.parent = node;
         
         replaceParentsChild(parent, node, tempRight);
-        return tempRight;
     }
     
     private void replaceParentsChild(Node<E> parent, Node<E> oldChild, Node<E> newChild) {
@@ -262,6 +252,12 @@ public class RedBlackTree<E extends Comparable<E>> {
         return isValid(root) && isBalanced();
     }
     
+    private boolean isValid(Node<E> node) {
+        if (null == node) return true;
+        if (isRed(node) && (isRed(node.left) || isRed(node.right))) return false;
+        return isValid(node.left) && isValid(node.right);
+    }
+    
     private boolean isBalanced() { 
         int black = 0;
         Node<E> node = root;
@@ -279,12 +275,6 @@ public class RedBlackTree<E extends Comparable<E>> {
         return isBalanced(node.left, black) && isBalanced(node.right, black);
     } 
 
-    private boolean isValid(Node<E> node) {
-        if (null == node) return true;
-        if (isRed(node) && (isRed(node.left) || isRed(node.right))) return false;
-        return isValid(node.left) && isValid(node.right);
-    }
-    
     public void printTree() {
         printNode(root);
     }
