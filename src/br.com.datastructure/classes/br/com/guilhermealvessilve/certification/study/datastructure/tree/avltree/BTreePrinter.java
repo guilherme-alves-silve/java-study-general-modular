@@ -11,21 +11,21 @@ import java.util.List;
 public class BTreePrinter {
 
     private static Node<Integer> test1() {
-        Node<Integer> root = new Node<Integer>(2);
-        Node<Integer> n11 = new Node<Integer>(7);
-        Node<Integer> n12 = new Node<Integer>(5);
-        Node<Integer> n21 = new Node<Integer>(2);
-        Node<Integer> n22 = new Node<Integer>(6);
-        Node<Integer> n23 = new Node<Integer>(3);
-        Node<Integer> n24 = new Node<Integer>(6);
-        Node<Integer> n31 = new Node<Integer>(5);
-        Node<Integer> n32 = new Node<Integer>(8);
-        Node<Integer> n33 = new Node<Integer>(4);
-        Node<Integer> n34 = new Node<Integer>(5);
-        Node<Integer> n35 = new Node<Integer>(8);
-        Node<Integer> n36 = new Node<Integer>(4);
-        Node<Integer> n37 = new Node<Integer>(5);
-        Node<Integer> n38 = new Node<Integer>(8);
+        var root = new Node<Integer>(2);
+        var n11 = new Node<Integer>(7);
+        var n12 = new Node<Integer>(5);
+        var n21 = new Node<Integer>(2);
+        var n22 = new Node<Integer>(6);
+        var n23 = new Node<Integer>(3);
+        var n24 = new Node<Integer>(6);
+        var n31 = new Node<Integer>(5);
+        var n32 = new Node<Integer>(8);
+        var n33 = new Node<Integer>(4);
+        var n34 = new Node<Integer>(5);
+        var n35 = new Node<Integer>(8);
+        var n36 = new Node<Integer>(4);
+        var n37 = new Node<Integer>(5);
+        var n38 = new Node<Integer>(8);
 
         root.left = n11;
         root.right = n12;
@@ -106,7 +106,7 @@ public class BTreePrinter {
 
         BTreePrinter.printWhitespaces(firstSpaces);
 
-        List<Node<T>> newNodes = new ArrayList<Node<T>>();
+        var newNodes = new ArrayList<Node<T>>();
         for (Node<T> node : nodes) {
             if (node != null) {
                 System.out.print(node.data);
@@ -165,11 +165,6 @@ public class BTreePrinter {
     }
 
     private static <T> boolean isAllElementsNull(List<T> list) {
-        for (Object object : list) {
-            if (object != null)
-                return false;
-        }
-
-        return true;
+        return list.stream().noneMatch(object -> (object != null));
     }
 }

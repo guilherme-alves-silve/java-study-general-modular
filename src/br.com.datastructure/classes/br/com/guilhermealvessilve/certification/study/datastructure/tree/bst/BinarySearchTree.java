@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 
 /**
@@ -13,8 +12,8 @@ import java.util.function.ToIntFunction;
  */
 public class BinarySearchTree<E extends Comparable<E>> {
 
-    private volatile int size;
-    private volatile Node<E> root;
+    private int size;
+    private Node<E> root;
     
     public boolean insert(E data) {
         Objects.requireNonNull(data, "data cannot be null!");

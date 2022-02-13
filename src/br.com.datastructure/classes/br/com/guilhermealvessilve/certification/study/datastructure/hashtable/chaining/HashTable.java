@@ -45,16 +45,18 @@ public class HashTable<K, V> implements IHashTable<K, V> {
     @Override
     public V get(K key) {
         requireNonNull(key);
+
         int bucket = getBucketUsingHash(key);
-        if (null == table[bucket]) {
-            return null;
+        var node = table[bucket];
+        while (node != null) {
+
+            if (node.key.equals(key)) {
+                return node.value;
+            }
+
+            node = node.next;
         }
-        
-        var node = search(bucket, key);
-        if (key.equals(node.key)) {
-            return node.value;
-        }
-        
+
         return null;
     }
     

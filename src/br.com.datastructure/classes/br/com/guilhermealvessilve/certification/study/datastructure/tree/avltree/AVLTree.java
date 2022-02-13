@@ -264,6 +264,10 @@ public class AVLTree<E extends Comparable<E>> {
         }
     }
     
+    /**
+     * Reference:
+     *  https://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram-in-java
+     */
     private static <T extends Comparable<?>> void printNode(Node<T> root) {
         int maxLevel = maxLevel(root);
 

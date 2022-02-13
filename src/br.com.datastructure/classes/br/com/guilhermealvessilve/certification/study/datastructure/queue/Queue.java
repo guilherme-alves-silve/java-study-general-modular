@@ -1,12 +1,13 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.queue;
 
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
  *
  * @author Alves
  */
-public class Queue<E> {
+public class Queue<E> implements Iterable<E> {
     
     private int size;
     private Node<E> head;
@@ -69,11 +70,33 @@ public class Queue<E> {
         
         return builder.toString();
     }
+
+    @Override
+    public Iterator<E> iterator() {
+        return new Iterator<E>() {
+            
+            Node<E> node;
+            {
+                node = new Node<>(null);
+                node.next = head;
+            }
+            
+            @Override
+            public boolean hasNext() {
+                return node.next != null;
+            }
+
+            @Override
+            public E next() {
+                node = node.next;
+                return node.data;
+            }
+        };
+    }
     
     private static class Node<E> {
         
         private E data;
-        //private Node<E> previous;
         private Node<E> next;
         
         public Node(E data) {
