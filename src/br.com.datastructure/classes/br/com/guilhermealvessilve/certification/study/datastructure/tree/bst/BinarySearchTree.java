@@ -125,26 +125,14 @@ public class BinarySearchTree<E extends Comparable<E>> {
         } else if (node.data.compareTo(data) < 0) {
             node.right = removeValue(node.right, data);
         } else {
-            if (null == node.left && null == node.right) {
-                return null;
-            } else if (null == node.left) {
+            if (null == node.left) {
                 return node.right;
             } else if (node == node.right) {
                 return node.left;
             } else {
-                final var predecessor = searchPredecessor(node.left);
-                node.data = predecessor.data;
-                node.left = removeValue(node.left, predecessor.data);
+                node.data = getMaxValue(node.left);
+                node.left = removeValue(node.left, node.data);
             }
-        }
-        
-        return node;
-    }
-    
-    private Node<E> searchPredecessor(Node<E> node) {
-        
-        if (node.right != null) {
-            return searchPredecessor(node.right);
         }
         
         return node;
@@ -155,31 +143,22 @@ public class BinarySearchTree<E extends Comparable<E>> {
             return null;
         }
 
-        return getMinValue(root, root.data);
+        return getMinValue(root);
     }
     
-    private E getMinValue(Node<E> node, E minValue) {
-        if (null == node) {
-            return minValue;
-        }
-        
-        return getMinValue(node.left, node.data);
+    private E getMinValue(Node<E> node) {
+        if (node.left != null) return getMinValue(node.left);
+        return node.data;
     }
     
     public E getMax() {
-        if (null == root) {
-            return null;
-        }
-
-        return getMaxValue(root, root.data);
+        if (null == root) return null;
+        return getMaxValue(root);
     }
     
-    private E getMaxValue(Node<E> node, E maxValue) {
-        if (null == node) {
-            return maxValue;
-        }
-        
-        return getMaxValue(node.right, node.data);
+    private E getMaxValue(Node<E> node) {
+        if (node.right != null) return getMaxValue(node.right);
+        return node.data;
     }
     
     public int size() {

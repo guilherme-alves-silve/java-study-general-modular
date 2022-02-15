@@ -39,7 +39,7 @@ public class MainRedBlackTree {
             System.out.println("tree.size(): " + tree.size());
             System.out.println("size == traversed.size: " + (tree.size() == traversed.size()));
             System.out.println("tree.isEmpty(): " + tree.isEmpty());
-            //System.out.println("tree.traverse(): " + traversed);
+            System.out.println("tree.traverse(): " + traversed);
             System.out.println("tree.getMin(): " + tree.getMin());
             System.out.println("tree.getMax(): " + tree.getMax());
             System.out.println("tree.isValid(): " + tree.isValid());

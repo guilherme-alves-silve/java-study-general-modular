@@ -1,4 +1,4 @@
-package br.com.guilhermealvessilve.certification.study.datastructure.tree.avltree;
+package br.com.guilhermealvessilve.certification.study.datastructure.tree.splaytree;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,10 +9,11 @@ import java.util.Objects;
  *
  * @author Alves
  */
-public class AVLTree<E extends Comparable<E>> {
+public class SplayTree<E extends Comparable<E>> {
 
     private int size;
     private Node<E> root;
+    private boolean altered;
     
     public boolean insert(E data) {
         
@@ -31,14 +32,13 @@ public class AVLTree<E extends Comparable<E>> {
         
         if (node.data.compareTo(data) > 0) {
             node.left = insertNode(node.left, data);
+            node.left.parent = node;
         } else if (node.data.compareTo(data) < 0) {
             node.right = insertNode(node.right, data);
-        } else {
-            return node;
+            node.right.parent = node;
         }
 
-        updateHeight(node);
-        return getBalancedNode(node);
+        return node;
     }
     
     public E search(E data) {
@@ -48,17 +48,61 @@ public class AVLTree<E extends Comparable<E>> {
             return null;
         }
 
-        return searchNode(root, data);
+        var node = searchNode(root, data);
+        return getSplay(node);
     }
     
-    private E searchNode(Node<E> node, E data) {
+    private E getSplay(Node<E> node) {
+        
+        if (null == node) return null;
+        
+        while (node != root) {
+            if (null == node.parent) {
+                root = node;
+            //zig situation
+            } else if (node.parent != null && node.parent.parent == null) {
+                if (node.isLeftChild()) {
+                    rotateRight(node.parent);
+                } else {
+                    rotateLeft(node.parent);
+                }
+            
+            } else if (node.parent != null && node.parent.parent != null) {
+                
+                //zig-zig situation
+                if (node.isLeftChild() && node.parent.isLeftChild()) {
+                    rotateRight(node.parent.parent);
+                    rotateRight(node.parent);
+                } else if (node.isRightChild() && node.parent.isRightChild()) {
+                    rotateLeft(node.parent.parent);
+                    rotateLeft(node.parent);
+                //zig-zag situation
+                } else if (node.isLeftChild() && node.parent.isRightChild()) {
+                    rotateRight(node.parent);
+                    rotateLeft(node.parent);
+                } else if (node.isRightChild() && node.parent.isLeftChild()) {
+                    rotateLeft(node.parent);
+                    rotateRight(node.parent);
+                }
+            }
+        }
+        
+        return node.data;
+    }
+    
+    public E getRootValue() {
+        if (null == root) return null;
+        return root.data;
+    }
+    
+    private Node<E> searchNode(Node<E> node, E data) {
         
         if (null == node) {
             return null;
         }
         
         if (node.data.compareTo(data) == 0) {
-            return node.data;
+            return node;
         }
         
         if (node.data.compareTo(data) > 0) {
@@ -92,13 +136,15 @@ public class AVLTree<E extends Comparable<E>> {
     
     public boolean remove(E data) {
         Objects.requireNonNull(data, "data cannot be null!");
-        if (null == root || searchNode(root, data) == null) {
-            return false;
+        
+        int tempSize = size;
+        this.root = removeValue(root, data);
+        if (null == root) {
+            System.out.println("HERE");
         }
-
-        --size;
-        root = removeValue(root, data);
-        return true;
+        if (altered) --size;
+        altered = false;
+        return tempSize > size;
     }
     
     private Node<E> removeValue(Node<E> node, E data) {
@@ -109,46 +155,35 @@ public class AVLTree<E extends Comparable<E>> {
 
         if (node.data.compareTo(data) > 0) {
             node.left = removeValue(node.left, data);
+            if (node.left != null) node.left.parent = node;
         } else if (node.data.compareTo(data) < 0) {
             node.right = removeValue(node.right, data);
+            if (node.right != null) node.right.parent = node;
         } else {
+            altered = true;
             if (null == node.left) {
                 return node.right;
             } else if (node == node.right) {
                 return node.left;
             } else {
-                node.data = getMaxValue(node.left);
-                node.left = removeValue(node.left, node.data);
+                final var predecessor = searchPredecessor(node.left);
+                node.data = predecessor.data;
+                node.left = removeValue(node.left, predecessor.data);
             }
         }
         
-        updateHeight(node);
-        return getBalancedNode(node);
+        return node;
     }
     
-    public E getMin() {
-        if (null == root) {
-            return null;
+    private Node<E> searchPredecessor(Node<E> node) {
+        
+        if (node.right != null) {
+            return searchPredecessor(node.right);
         }
+        
+        return node;
+    }
 
-        return getMinValue(root);
-    }
-    
-    private E getMinValue(Node<E> node) {
-        if (node.left != null) return getMinValue(node.left);
-        return node.data;
-    }
-    
-    public E getMax() {
-        if (null == root) return null;
-        return getMaxValue(root);
-    }
-    
-    private E getMaxValue(Node<E> node) {
-        if (node.right != null) return getMaxValue(node.right);
-        return node.data;
-    }
-    
     public int size() {
         return size;
     }
@@ -157,89 +192,94 @@ public class AVLTree<E extends Comparable<E>> {
         return null == root;
     }
     
+    public E getMin() {
+        if (null == root) return null;
+        return getMin(root);
+    }
+    
+    private E getMin(Node<E> node) {
+        if (node.left != null) return getMin(node.left);
+        return node.data;
+    }
+    
+    public E getMax() {
+        if (null == root) return null;
+        return getMax(root);
+    }
+    
+    private E getMax(Node<E> node) {
+        if (node.right != null) return getMax(node.right);
+        return node.data;
+    }
+    
     public void printNode() {
         printNode(root);
     }
     
-    private void updateHeight(Node<E> node) {
-        if (null == node) {
-            return;
-        }
-        
-        node.height = Math.max(height(node.left), height(node.right)) + 1;
-    }
-    
-    private int balanceFactor(Node<E> node) {
-        if (null == node) {
-            return 0;
-        }
-        
-        return height(node.left) - height(node.right);
-    }
-    
-    private int height(Node<E> node) {
-        if (null == node) {
-            return -1;
-        }
-        
-        return node.height;
-    }
-    
-    private Node<E> rightRotation(Node<E> node) {
+    private void rotateRight(Node<E> node) {
+        var parent = node.parent;
         var tempLeft = node.left;
         var grandChild = tempLeft.right;
         
-        tempLeft.right = node;
         node.left = grandChild;
+        tempLeft.right = node;
         
-        updateHeight(node);
-        updateHeight(tempLeft);
+        node.parent = tempLeft;
+        tempLeft.parent = parent;
+        if (grandChild != null) grandChild.parent = node;
         
-        return tempLeft;
+        replaceParentsChild(parent, node, tempLeft);
     }
     
-    private Node<E> leftRotation(Node<E> node) {
+    private void rotateLeft(Node<E> node) {
+        var parent = node.parent;
         var tempRight = node.right;
         var grandChild = tempRight.left;
         
-        tempRight.left = node;
         node.right = grandChild;
+        tempRight.left = node;
         
-        updateHeight(node);
-        updateHeight(tempRight);
+        node.parent = tempRight;
+        tempRight.parent = parent;
+        if (grandChild != null) grandChild.parent = node;
         
-        return tempRight;
+        replaceParentsChild(parent, node, tempRight);
     }
     
-    private Node<E> getBalancedNode(Node<E> node) {
-      
-        int balance = balanceFactor(node);
-        if (balance > 1) { //left heavy
-            if (balanceFactor(node.left) < 0) { //left-right heavy
-                node.left = leftRotation(node.left);
-            }
-            
-            node = rightRotation(node);
-        } else if (balance < -1) { //right heavy
-            if (balanceFactor(node.right) > 0) { //right-left heavy
-                node.right = rightRotation(node.right);
-            }
-            
-            node = leftRotation(node);
-        }
+    private void replaceParentsChild(Node<E> parent, Node<E> oldChild, Node<E> newChild) {
+        if (null == parent) root = newChild;
+        else if (parent.left == oldChild) parent.left = newChild;
+        else if (parent.right == oldChild) parent.right = newChild;
+        else throw new IllegalStateException();
         
-        return node;
+        if (newChild != null) newChild.parent = parent;
     }
     
     private static class Node<E> {
-        
-        private E data;
-        private int height;
-        private Node<E> left;
-        private Node<E> right;
+        E data;
+        Node<E> parent;
+        Node<E> left;
+        Node<E> right;
 
-        public Node(E data) {
+        Node(E data) {
             this.data = data;
+        }
+        
+        boolean isLeftChild() {
+            return this == parent.left;
+        }
+        
+        boolean isRightChild() {
+            return this == parent.right;
+        }
+        
+        Node<E> getGrandParent() {
+            return (parent != null)? parent.parent : null;
+        }
+        
+        @Override
+        public String toString() {
+            return (data != null)? data.toString() : null;
         }
     }
     
@@ -264,7 +304,7 @@ public class AVLTree<E extends Comparable<E>> {
 
         printWhitespaces(firstSpaces);
 
-        List<Node<T>> newNodes = new ArrayList<Node<T>>();
+        final var newNodes = new ArrayList<Node<T>>();
         for (Node<T> node : nodes) {
             if (node != null) {
                 System.out.print(node.data);
@@ -322,11 +362,7 @@ public class AVLTree<E extends Comparable<E>> {
     }
 
     private static <T> boolean isAllElementsNull(List<T> list) {
-        for (Object object : list) {
-            if (object != null)
-                return false;
-        }
-
-        return true;
+        return list.stream()
+                .noneMatch(Objects::nonNull);
     }
 }
