@@ -274,21 +274,21 @@ public class SplayTree<E extends Comparable<E>> {
         var left = node.left;
         var right = node.right;
 
-        boolean lesserCheck = true;
+        boolean leftCheck = true;
         if (left != null) {
-            lesserCheck = (left.data.compareTo(node.data) <= 0);
-            if (lesserCheck) lesserCheck = isValid(left);
+            leftCheck = (left.data.compareTo(node.data) <= 0);
+            if (leftCheck) leftCheck = isValid(left);
         }
         
-        if (!lesserCheck) return false;
+        if (!leftCheck) return false;
 
-        boolean greaterCheck = true;
+        boolean rightCheck = true;
         if (right != null) {
-            greaterCheck = (right.data.compareTo(node.data) > 0);
-            if (greaterCheck) greaterCheck = isValid(right);
+            rightCheck = (right.data.compareTo(node.data) > 0);
+            if (rightCheck) rightCheck = isValid(right);
         }
         
-        return greaterCheck;
+        return rightCheck;
     }
     
     /**
