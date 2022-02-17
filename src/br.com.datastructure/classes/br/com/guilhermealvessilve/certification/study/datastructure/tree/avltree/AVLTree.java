@@ -264,8 +264,8 @@ public class AVLTree<E extends Comparable<E>> {
 
         printWhitespaces(firstSpaces);
 
-        List<Node<T>> newNodes = new ArrayList<Node<T>>();
-        for (Node<T> node : nodes) {
+        var newNodes = new ArrayList<Node<T>>();
+        nodes.forEach(node -> {
             if (node != null) {
                 System.out.print(node.data);
                 newNodes.add(node.left);
@@ -277,7 +277,7 @@ public class AVLTree<E extends Comparable<E>> {
             }
 
             printWhitespaces(betweenSpaces);
-        }
+        });
         System.out.println("");
 
         for (int i = 1; i <= endgeLines; i++) {

@@ -25,8 +25,8 @@ public class MainSplayTree {
         
         final var foundAll = TestUtils.randomList(0, total)
             .stream()
-            .allMatch(value -> tree.search(value) != null);
-
+            .allMatch(value -> tree.search(value) != null && tree.isValid());
+        
         System.out.println("allInserted: " + allInserted);
         System.out.println("foundAll: " + foundAll);
         System.out.println("tree.size(): " + tree.size());
@@ -40,7 +40,7 @@ public class MainSplayTree {
         
         boolean removedAll = TestUtils.randomList(0, total)
                 .stream()
-                .allMatch(value -> Objects.equals(tree.search(value), value) && tree.remove(value));
+                .allMatch(value -> Objects.equals(tree.search(value), value) && tree.remove(value) && tree.isValid());
         
         System.out.println();
         System.out.println("tree.size(): " + tree.size());
@@ -53,19 +53,23 @@ public class MainSplayTree {
     }
     
     private static void testRotations() throws InterruptedException {
-        //left-right heavy
+
         final var tree = new SplayTree<Integer>();
-        int[] values = {32, 10, 55, 1, 19, 41, 16, 12};
+        int[] values = {32, 10, 55, 1, 1, 19, 41, 16, 12, 99, 47, 5, 2, 3, 0, 0};
         Arrays.stream(values)
                 .forEach((value) -> tree.insert(value));
         
         System.out.println("before searching elements: " + tree.traverse());
         for (int i = 0; i < tree.size(); i++) {
-            tree.printNode();
             System.out.println("search: " + tree.search(values[i]));
-            tree.printNode();
             System.out.println("root value: " + tree.getRootValue());
         }
         System.out.println("after searching elements: " + tree.traverse());
+        
+        for (int i = 0; i < values.length; i++) {
+            tree.remove(values[i]);
+        }
+        
+        if (tree.getRootValue() != null) throw new IllegalStateException("Root must be null!");
     }
 }

@@ -8,18 +8,21 @@ import java.util.Objects;
 /**
  *
  * @author Alves
+ * Reference:
+ *  https://www.udemy.com/course/algorithms-and-data-structures/learn/lecture/5599278#overview
+ *  https://github.com/geekific-official/geekific-youtube/tree/main/tree-splay
+ *  https://github.com/phishman3579/java-algorithms-implementation/blob/master/src/com/jwetherell/algorithms/data_structures/SplayTree.java
  */
 public class SplayTree<E extends Comparable<E>> {
 
     private int size;
     private Node<E> root;
-    private boolean altered;
     
     public boolean insert(E data) {
-        
         Objects.requireNonNull(data, "data cannot be null!");
         final int tempSize = size;
         this.root = insertNode(root, data);
+        this.root.parent = null;
         return size > tempSize;
     }
     
@@ -44,9 +47,7 @@ public class SplayTree<E extends Comparable<E>> {
     public E search(E data) {
         
         Objects.requireNonNull(data, "data cannot be null!");
-        if (null == root) {
-            return null;
-        }
+        if (null == root) return null;
 
         var node = searchNode(root, data);
         return getSplay(node);
@@ -57,33 +58,25 @@ public class SplayTree<E extends Comparable<E>> {
         if (null == node) return null;
         
         while (node != root) {
-            if (null == node.parent) {
-                root = node;
-            //zig situation
-            } else if (node.parent != null && node.parent.parent == null) {
+            var parent = node.parent;
+            if (node.getGrandParent() == null) {
                 if (node.isLeftChild()) {
                     rotateRight(node.parent);
                 } else {
                     rotateLeft(node.parent);
                 }
-            
-            } else if (node.parent != null && node.parent.parent != null) {
-                
-                //zig-zig situation
-                if (node.isLeftChild() && node.parent.isLeftChild()) {
-                    rotateRight(node.parent.parent);
-                    rotateRight(node.parent);
-                } else if (node.isRightChild() && node.parent.isRightChild()) {
-                    rotateLeft(node.parent.parent);
-                    rotateLeft(node.parent);
-                //zig-zag situation
-                } else if (node.isLeftChild() && node.parent.isRightChild()) {
-                    rotateRight(node.parent);
-                    rotateLeft(node.parent);
-                } else if (node.isRightChild() && node.parent.isLeftChild()) {
-                    rotateLeft(node.parent);
-                    rotateRight(node.parent);
-                }
+            } else if (node.isLeftChild() && parent.isLeftChild()) {
+                rotateRight(node.getGrandParent());
+                rotateRight(node.parent);
+            } else if (node.isRightChild() && parent.isRightChild()) {
+                rotateLeft(node.getGrandParent());
+                rotateLeft(node.parent);
+            } else if (node.isLeftChild() && parent.isRightChild()) {
+                rotateRight(node.parent);
+                rotateLeft(node.parent);
+            } else {
+                rotateLeft(node.parent);
+                rotateRight(node.parent);
             }
         }
         
@@ -136,15 +129,14 @@ public class SplayTree<E extends Comparable<E>> {
     
     public boolean remove(E data) {
         Objects.requireNonNull(data, "data cannot be null!");
-        
-        int tempSize = size;
-        this.root = removeValue(root, data);
-        if (null == root) {
-            System.out.println("HERE");
+        if (null == root || searchNode(root, data) == null) {
+            return false;
         }
-        if (altered) --size;
-        altered = false;
-        return tempSize > size;
+
+        --size;
+        root = removeValue(root, data);
+        if (root != null) root.parent = null;
+        return true;
     }
     
     private Node<E> removeValue(Node<E> node, E data) {
@@ -160,30 +152,20 @@ public class SplayTree<E extends Comparable<E>> {
             node.right = removeValue(node.right, data);
             if (node.right != null) node.right.parent = node;
         } else {
-            altered = true;
             if (null == node.left) {
                 return node.right;
             } else if (node == node.right) {
                 return node.left;
             } else {
-                final var predecessor = searchPredecessor(node.left);
-                node.data = predecessor.data;
-                node.left = removeValue(node.left, predecessor.data);
+                node.data = getMax(node.left);
+                node.left = removeValue(node.left, node.data);
+                if (node.left != null) node.left.parent = node;
             }
         }
         
         return node;
     }
     
-    private Node<E> searchPredecessor(Node<E> node) {
-        
-        if (node.right != null) {
-            return searchPredecessor(node.right);
-        }
-        
-        return node;
-    }
-
     public int size() {
         return size;
     }
@@ -283,6 +265,32 @@ public class SplayTree<E extends Comparable<E>> {
         }
     }
     
+    public boolean isValid() {
+        if (root == null) return true;
+        return isValid(root);
+    }
+
+    private boolean isValid(Node<E> node) {
+        var left = node.left;
+        var right = node.right;
+
+        boolean lesserCheck = true;
+        if (left != null) {
+            lesserCheck = (left.data.compareTo(node.data) <= 0);
+            if (lesserCheck) lesserCheck = isValid(left);
+        }
+        
+        if (!lesserCheck) return false;
+
+        boolean greaterCheck = true;
+        if (right != null) {
+            greaterCheck = (right.data.compareTo(node.data) > 0);
+            if (greaterCheck) greaterCheck = isValid(right);
+        }
+        
+        return greaterCheck;
+    }
+    
     /**
      * Reference:
      *  https://stackoverflow.com/questions/4965335/how-to-print-binary-tree-diagram-in-java
@@ -304,8 +312,8 @@ public class SplayTree<E extends Comparable<E>> {
 
         printWhitespaces(firstSpaces);
 
-        final var newNodes = new ArrayList<Node<T>>();
-        for (Node<T> node : nodes) {
+        var newNodes = new ArrayList<Node<T>>();
+        nodes.forEach(node -> {
             if (node != null) {
                 System.out.print(node.data);
                 newNodes.add(node.left);
@@ -317,7 +325,7 @@ public class SplayTree<E extends Comparable<E>> {
             }
 
             printWhitespaces(betweenSpaces);
-        }
+        });
         System.out.println("");
 
         for (int i = 1; i <= endgeLines; i++) {
