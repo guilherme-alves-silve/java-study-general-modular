@@ -11,7 +11,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
 
     private static final int DEFAULT_TABLE_SIZE = 16;
     private int size;
-    private Node<K, V>[] table;
+    private final Node<K, V>[] table;
 
     public HashTable() {
         this.table = new Node[DEFAULT_TABLE_SIZE];
@@ -23,27 +23,26 @@ public class HashTable<K, V> implements IHashTable<K, V> {
         requireNonNull(key);
         requireNonNull(value);
         
-        int bucket = getBucketUsingHash(key);
-        if (null == table[bucket]) {
-            ++size;
-            table[bucket] = new Node<>(key, value);
-            return null;
-        } 
-        
-        var node = search(bucket, key);
-        if (key.equals(node.key)) {
-            var oldValue = node.value;
+        var node = getNode(key);
+        if (node != null) {
             node.value = value;
-            return oldValue;
+            return node.value;
         }
-
+        
         ++size;
-        node.next = new Node<>(key, value);
+        int bucket = getBucketUsingHash(key);
+        table[bucket] = new Node<>(key, value, table[bucket]);
         return null;
     }
 
     @Override
     public V get(K key) {
+        requireNonNull(key);
+        var node = getNode(key);
+        return (node != null)? node.value : null;
+    }
+    
+    private Node<K, V> getNode(K key) {
         requireNonNull(key);
 
         int bucket = getBucketUsingHash(key);
@@ -51,7 +50,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
         while (node != null) {
 
             if (node.key.equals(key)) {
-                return node.value;
+                return node;
             }
 
             node = node.next;
@@ -60,40 +59,32 @@ public class HashTable<K, V> implements IHashTable<K, V> {
         return null;
     }
     
-    private Node<K, V> search(final int bucket, final K key) {
-        var node = table[bucket];
-        while (!key.equals(node.key) && node.next != null) {
-            node = node.next;
-        }
-        
-        return node;
-    }
-    
     @Override
     public V remove(K key) {
         requireNonNull(key);
-        int bucket = getBucketUsingHash(key);
-        if (null == table[bucket]) {
-            return null;
-        }
 
-        Node<K, V> before = null;        
+        int bucket = getBucketUsingHash(key);
+        
+        Node<K, V> before = null;    
         var actual = table[bucket];
-        while (!key.equals(actual.key) && actual.next != null) {
+        while (actual != null) {
+        
+            if (actual.key.equals(key)) {
+                --size;
+                if (null == before) {
+                    table[bucket] = table[bucket].next;
+                } else {
+                    before.next = actual.next;
+                }
+                
+                return actual.value;
+            }
+            
             before = actual;
             actual = actual.next;
         }
         
-        if (key.equals(actual.key)) {
-            --size;
-            if (null == before) {
-                table[bucket] = table[bucket].next;
-            } else {
-                before.next = actual.next;
-            }
-        }
-        
-        return actual.value;
+        return null;
     }
 
     @Override
@@ -159,15 +150,21 @@ public class HashTable<K, V> implements IHashTable<K, V> {
     }
     
     private static class Node<K, V> {
-        private final K key;
-        private V value;
-        private Node<K, V> next;
+        final K key;
+        V value;
+        Node<K, V> next;
 
-        public Node(K key, V value) {
+        Node(K key, V value) {
             this.key = key;
             this.value = value;
         }
 
+        Node(K key, V value, Node<K, V> next) {
+            this.key = key;
+            this.value = value;
+            this.next = next;
+        }
+        
         @Override
         public String toString() {
             return "{" + key + ", " + value + '}';
