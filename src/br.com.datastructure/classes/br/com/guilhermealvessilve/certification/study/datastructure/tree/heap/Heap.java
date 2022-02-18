@@ -74,6 +74,10 @@ public class Heap<E> implements Iterable<E> {
         return list;
     }
     
+    public E[] toArray() {
+        return Arrays.copyOf(heap, size);
+    }
+    
     public boolean insert(E data) {
         if (isFull()) return false;
         heap[size++] = Objects.requireNonNull(data);
@@ -123,15 +127,15 @@ public class Heap<E> implements Iterable<E> {
     private void fixUp(int childIndex) {
         
         int parentIndex = (childIndex - 1) / 2;
-        if (parentIndex >= 0 && compare(heap[childIndex], heap[parentIndex])) {
+        if (parentIndex >= 0 && compare(heap[childIndex], heap[parentIndex]) > 0) {
             swap(parentIndex, childIndex);
             fixUp(parentIndex);
         }
     }
     
-    private boolean compare(E value1, E value2) {
-        if (null == value1 || null == value2) return false;
-        return comparator.compare(value1, value2) > 0;
+    private int compare(E value1, E value2) {
+        if (null == value1 || null == value2) return 0;
+        return comparator.compare(value1, value2);
     }
     
     private void fixDown(int parentIndex) {
@@ -139,11 +143,11 @@ public class Heap<E> implements Iterable<E> {
         int rightChildIndex = 2 * parentIndex + 2;
         
         int bestIndex = NOT_FOUND;
-        if (leftChildIndex < size && compare(heap[leftChildIndex], heap[parentIndex])) {
+        if (leftChildIndex < size && compare(heap[leftChildIndex], heap[parentIndex]) > 0) {
             bestIndex = leftChildIndex;
         }
         
-        if (rightChildIndex < size && compare(heap[rightChildIndex], heap[leftChildIndex])) {
+        if (rightChildIndex < size && compare(heap[rightChildIndex], heap[leftChildIndex]) > 0) {
             bestIndex = rightChildIndex;
         }
         
@@ -175,6 +179,31 @@ public class Heap<E> implements Iterable<E> {
         @Override
     public Iterator<E> iterator() {
         return new ListIterator<>(size, heap);
+    }
+
+    public boolean isValid() {
+        if (isEmpty()) return true;
+        return isValid(0);
+    }
+    
+    private boolean isValid(int parentIndex) {
+        if (NOT_FOUND == parentIndex) return true;
+        
+        int leftChildIndex = 2 * parentIndex + 1;
+        int rightChildIndex = 2 * parentIndex + 2;
+        
+        int nextParent = NOT_FOUND;
+        if (leftChildIndex < size) {
+            if (compare(heap[leftChildIndex], heap[parentIndex]) > 0) return false;
+            else nextParent = leftChildIndex;
+        }
+        
+        if (rightChildIndex < size) {
+            if (compare(heap[rightChildIndex], heap[parentIndex]) > 0) return false;
+            else nextParent = rightChildIndex;
+        }
+        
+        return isValid(nextParent);
     }
 
     private static class ListIterator<E> implements Iterator<E> {
