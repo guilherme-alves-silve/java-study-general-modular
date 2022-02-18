@@ -48,8 +48,10 @@ public class Heap<E> implements Iterable<E> {
     public E poll() {
         if (isEmpty()) return null;
         var result = heap[0];
-        heap[0] = heap[--size];
-        heap[size + 1] = null;
+        
+        heap[0] = heap[size - 1];
+        heap[--size] = null;
+        
         fixDown(0);
         return result;
     }
