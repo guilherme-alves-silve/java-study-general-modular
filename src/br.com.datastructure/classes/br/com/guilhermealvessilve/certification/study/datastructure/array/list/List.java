@@ -27,7 +27,7 @@ public class List<E> implements Iterable<E> {
         System.arraycopy(elements, 0, array, 0, elements.length);
     }
     
-    public void add(E value) {
+    public void insert(E value) {
         growSizeIfNecessary();
         array[size++] = value;
     }
@@ -43,10 +43,10 @@ public class List<E> implements Iterable<E> {
         return false;
     }
     
-    public void add(E... values) {
+    public void insert(E... values) {
         if (values.length == 0) throw new IllegalArgumentException();
         for (var value : values) {
-            add(value);
+            List.this.insert(value);
         }
     }
     

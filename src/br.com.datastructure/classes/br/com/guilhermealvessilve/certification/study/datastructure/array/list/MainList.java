@@ -8,7 +8,7 @@ public class MainList {
     
     public static void main(String[] args) {
         var list1 = new List<Integer>();
-        list1.add(0, 1, 2, 3, 4, 5);
+        list1.insert(0, 1, 2, 3, 4, 5);
         System.out.println("list1.size: " + list1.size());
         System.out.println("list1.isEmpty: " + list1.isEmpty());
         System.out.println("list1: " + list1);
@@ -18,12 +18,12 @@ public class MainList {
         list1.remove(3);
         list1.remove(3);
         list1.set(0, 50);
-        list1.add(25);
+        list1.insert(25);
         System.out.println("list1: " + list1);
         
         var list2 = new List<Integer>();
         for (int i = 0; i < 500; i++) {
-            list2.add(i);
+            list2.insert(i);
         }
         for (int i = 0; i < 500; i++) {
             if (!list2.contains(i)) {
@@ -40,14 +40,14 @@ public class MainList {
         System.out.println("list2.size: " + list2.size());
         System.out.println("list2: " + list2);
         for (int i = 5; i < 100; i++) {
-            list2.add(i);
+            list2.insert(i);
         }
         System.out.println("list2.size: " + list2.size());
         System.out.println("list2.isEmpty: " + list2.isEmpty());
         System.out.println("list2: " + list2);
         
         var list3 = new List<Integer>(0);
-        list3.add(1, 2, 3);
+        list3.insert(1, 2, 3);
         System.out.println("list3: " + list3);
     }
 }
