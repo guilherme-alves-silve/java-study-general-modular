@@ -21,7 +21,7 @@ public class Heap<E> implements Iterable<E> {
     
     private int size;
     private E[] heap;
-    private final Comparator<? super E> comparator;
+    private Comparator<? super E> comparator;
     
     public Heap(Class<E> clazz, Comparator<? super E> comparator) {
         this(DEFAULT_HEAP_SIZE, clazz, comparator);
@@ -78,6 +78,11 @@ public class Heap<E> implements Iterable<E> {
         return Arrays.copyOf(heap, size);
     }
     
+    public List<E> toList() {
+        var copy = Arrays.copyOf(heap, size);
+        return new List<>(copy);
+    }
+    
     public boolean insert(E data) {
         if (isFull()) return false;
         heap[size++] = Objects.requireNonNull(data);
@@ -123,7 +128,14 @@ public class Heap<E> implements Iterable<E> {
     public int size() {
         return size;
     }
-
+    
+    public void reverse() {
+        this.comparator = comparator.reversed();
+        for (int i = (size - 2) / 2; i >= 0; --i) {
+            fixDown(i);
+        }
+    }
+    
     private void fixUp(int childIndex) {
         
         int parentIndex = (childIndex - 1) / 2;
@@ -142,7 +154,7 @@ public class Heap<E> implements Iterable<E> {
         int leftChildIndex = 2 * parentIndex + 1;
         int rightChildIndex = 2 * parentIndex + 2;
         
-        int bestIndex = NOT_FOUND;
+        int bestIndex = parentIndex;
         if (leftChildIndex < size && compare(heap[leftChildIndex], heap[parentIndex]) > 0) {
             bestIndex = leftChildIndex;
         }
@@ -151,7 +163,7 @@ public class Heap<E> implements Iterable<E> {
             bestIndex = rightChildIndex;
         }
         
-        if (bestIndex != NOT_FOUND) {
+        if (bestIndex != parentIndex) {
             swap(bestIndex, parentIndex);
             fixDown(bestIndex);
         }

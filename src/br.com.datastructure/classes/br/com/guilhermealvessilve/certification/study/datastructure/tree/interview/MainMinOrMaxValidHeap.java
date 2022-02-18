@@ -29,6 +29,9 @@ public class MainMinOrMaxValidHeap {
             maxHeap.insert(i);
         }
         
+        System.out.println("min heap: " + minHeap.toList());
+        System.out.println("max heap: " + maxHeap.toList()); 
+        
         System.out.println("valid min heap: " + checkMinHeap(minHeap.toArray())); // true
         System.out.println("valid min heap: " + checkMinHeap(maxHeap.toArray())); // false
         

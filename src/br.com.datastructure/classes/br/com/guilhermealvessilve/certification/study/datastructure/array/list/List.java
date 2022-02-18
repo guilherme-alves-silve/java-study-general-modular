@@ -25,6 +25,7 @@ public class List<E> implements Iterable<E> {
     public List(E... elements) {
         this(Objects.requireNonNull(elements).length);
         System.arraycopy(elements, 0, array, 0, elements.length);
+        this.size = elements.length;
     }
     
     public void insert(E value) {
