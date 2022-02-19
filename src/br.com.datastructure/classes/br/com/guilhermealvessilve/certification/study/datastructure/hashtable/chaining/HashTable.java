@@ -98,7 +98,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
     }
     
     private int getBucketUsingHash(K key) {
-        return key.hashCode() % table.length;
+        return Math.abs(key.hashCode()) % table.length;
     }
     
     public void printElementsPerBucket() {

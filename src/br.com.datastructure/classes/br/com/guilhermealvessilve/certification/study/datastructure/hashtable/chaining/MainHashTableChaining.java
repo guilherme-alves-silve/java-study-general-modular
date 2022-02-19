@@ -7,7 +7,7 @@ import java.util.Objects;
  *
  * @author Alves
  */
-public class MainHashTable {
+public class MainHashTableChaining {
 
     public static void main(String[] args) {
         final int qty = 100;
