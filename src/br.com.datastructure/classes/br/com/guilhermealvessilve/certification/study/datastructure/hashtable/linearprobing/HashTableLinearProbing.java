@@ -8,18 +8,18 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Alves
  */
-public class HashTable<K, V> implements IHashTable<K, V> {
+public class HashTableLinearProbing<K, V> implements IHashTable<K, V> {
 
     private static final int DEFAULT_TABLE_SIZE = 17;
     private int size;
     private int capacity;
     private Node<K, V>[] table;
 
-    public HashTable() {
+    public HashTableLinearProbing() {
         this(DEFAULT_TABLE_SIZE);
     }
     
-    public HashTable(int capacity) {
+    public HashTableLinearProbing(int capacity) {
         if (capacity < 0 || capacity > Integer.MAX_VALUE - 1) throw new IllegalArgumentException();
         this.capacity = capacity;
         this.table = new Node[capacity];
@@ -41,8 +41,6 @@ public class HashTable<K, V> implements IHashTable<K, V> {
             node.value = value;
             return node.value;
         }
-        
-        if (node != null) throw new IllegalStateException();
         
         ++size;
         table[index] = new Node<>(key, value);
@@ -70,7 +68,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
         --size;
         table[index] = null;
         
-        while (table[index = (index + 1) % capacity] != null) {
+        while (table[index = nextIndex(index)] != null) {
             var tempNode = table[index];
             table[index] = null;
             --size;
@@ -92,14 +90,18 @@ public class HashTable<K, V> implements IHashTable<K, V> {
                 return index;
             }
             
-            index = (index + 1) % capacity;
+            index = nextIndex(index);
         }
 
         return index;
     }
     
+    private int nextIndex(int index) {
+        return (index + 1) % capacity;
+    }
+    
     private void resize(int newCapacity) {
-        final var newHashTable = new HashTable<K, V>(newCapacity);
+        final var newHashTable = new HashTableLinearProbing<K, V>(newCapacity);
         for (int i = 0; i < capacity; i++) {
             var node = table[i];
             if (null == node) continue;
@@ -128,7 +130,7 @@ public class HashTable<K, V> implements IHashTable<K, V> {
     public void printElementsPerBucket() {
         final var str = new StringBuilder();
         int total = 0;
-        var hashMapBuckets = new HashTable<Integer, Integer>();
+        var hashMapBuckets = new HashTableLinearProbing<Integer, Integer>();
         for (int i = 0; i < table.length; ++i) {
             if (null == table[i]) continue;
             

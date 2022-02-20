@@ -7,13 +7,13 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Alves
  */
-public class HashTable<K, V> implements IHashTable<K, V> {
+public class HashTableChaining<K, V> implements IHashTable<K, V> {
 
     private static final int DEFAULT_TABLE_SIZE = 16;
     private int size;
     private final Node<K, V>[] table;
 
-    public HashTable() {
+    public HashTableChaining() {
         this.table = new Node[DEFAULT_TABLE_SIZE];
     }
     

@@ -11,7 +11,7 @@ public class MainHashTableLinearProbing {
 
     public static void main(String[] args) {
         final int qty = 100;
-        final var hashTable = new HashTable<Integer, String>();
+        final var hashTable = new HashTableLinearProbing<Integer, String>();
         System.out.println("All must match: " + TestUtils.randomStream(0, qty)
                 .allMatch(i -> hashTable.put(i, "Value-" + i) == null && hashTable.get(i) != null));
         System.out.format("Size must be %d: %b %n", qty, (qty == hashTable.size()));
