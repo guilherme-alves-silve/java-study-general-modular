@@ -48,6 +48,31 @@ public class LRUCache<K, V> {
         return node.value;
     }
     
+    private void update(Node<K, V> node) {
+        
+        if (null == node.previous) {
+            return;
+        }
+
+        var previous = node.previous;
+        var next = node.next;  
+        --linkedList.size;
+        linkedList.addFirst(node);
+        node.previous = null;
+        previous.next = next;
+        next.previous = previous;
+    }
+
+    private void add(Node<K, V> node) {
+        
+        hashTable.put(node.key, node);
+        linkedList.addFirst(node);
+        if (linkedList.size > capacity) {
+            var lru = linkedList.pollLast();
+            hashTable.remove(lru.key);
+        }
+    }
+    
     public void printNodes() {
         var node = linkedList.head;
         
@@ -73,31 +98,6 @@ public class LRUCache<K, V> {
 
     public int size() {
         return linkedList.size;
-    }
-    
-    private void update(Node<K, V> node) {
-        
-        if (null == node.previous) {
-            return;
-        }
-
-        var previous = node.previous;
-        var next = node.next;  
-        --linkedList.size;
-        linkedList.addFirst(node);
-        node.previous = null;
-        previous.next = next;
-        next.previous = previous;
-    }
-
-    private void add(Node<K, V> node) {
-        
-        hashTable.put(node.key, node);
-        linkedList.addFirst(node);
-        if (linkedList.size > capacity) {
-            var lru = linkedList.pollLast();
-            hashTable.remove(lru.key);
-        }
     }
     
     private static class DoublyLinkedList<K, V> {
