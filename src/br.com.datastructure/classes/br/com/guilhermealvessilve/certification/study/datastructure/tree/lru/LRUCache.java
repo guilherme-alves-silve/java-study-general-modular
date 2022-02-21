@@ -50,12 +50,25 @@ public class LRUCache<K, V> {
     
     public void printNodes() {
         var node = linkedList.head;
+        
+        if (null == node) {
+            System.out.print(" <-> ");
+        }
+        
         while (node != null) {
             System.out.print(" <-> " + node.toString());
             node = node.next;
         }
         
         System.out.println();
+    }
+    
+    public boolean isFull() {
+        return linkedList.size == capacity;
+    }
+    
+    public boolean isEmpty() {
+        return linkedList.isEmpty();
     }
 
     public int size() {
@@ -85,7 +98,6 @@ public class LRUCache<K, V> {
             var lru = linkedList.pollLast();
             hashTable.remove(lru.key);
         }
-        System.out.println("linkedList.size: " + linkedList.size);
     }
     
     private static class DoublyLinkedList<K, V> {
