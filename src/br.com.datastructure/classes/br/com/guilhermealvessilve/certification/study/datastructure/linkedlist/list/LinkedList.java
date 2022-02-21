@@ -1,6 +1,5 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.linkedlist.list;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import static java.util.Objects.requireNonNull;
 

@@ -171,6 +171,12 @@ public class DoublyLinkedList<E> implements Iterable<E> {
         --size;
         var temp = tail;
         tail = tail.previous;
+        if (null == tail) {
+            head = null;
+        } else {
+            tail.next = null;
+        }
+        
         return temp.data;
     }
     

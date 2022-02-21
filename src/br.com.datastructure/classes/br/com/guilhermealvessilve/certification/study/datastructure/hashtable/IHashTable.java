@@ -12,6 +12,8 @@ public interface IHashTable<K, V> {
     
     public V remove(K key);
     
+    public boolean containsKey(K key);
+    
     public boolean isEmpty();
     
     public int size();

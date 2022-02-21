@@ -42,6 +42,11 @@ public class HashTableChaining<K, V> implements IHashTable<K, V> {
         return (node != null)? node.value : null;
     }
     
+    @Override
+    public boolean containsKey(K key) {
+        return getNode(key) != null;
+    }
+    
     private Node<K, V> getNode(K key) {
         requireNonNull(key);
 

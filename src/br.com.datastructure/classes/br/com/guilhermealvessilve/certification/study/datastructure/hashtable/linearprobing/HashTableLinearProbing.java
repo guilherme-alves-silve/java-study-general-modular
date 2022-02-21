@@ -54,6 +54,11 @@ public class HashTableLinearProbing<K, V> implements IHashTable<K, V> {
         var node = table[index];
         return (node != null)? node.value : null;
     }
+    
+    @Override
+    public boolean containsKey(K key) {
+        return table[getNextBucket(key)] != null;
+    }
 
     @Override
     public V remove(K key) {
