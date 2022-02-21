@@ -1,4 +1,4 @@
-package br.com.guilhermealvessilve.certification.study.datastructure.tree.lru;
+package br.com.guilhermealvessilve.certification.study.datastructure.hashtable.lru;
 
 import br.com.guilhermealvessilve.certification.study.datastructure.hashtable.IHashTable;
 import br.com.guilhermealvessilve.certification.study.datastructure.hashtable.linearprobing.HashTableLinearProbing;
