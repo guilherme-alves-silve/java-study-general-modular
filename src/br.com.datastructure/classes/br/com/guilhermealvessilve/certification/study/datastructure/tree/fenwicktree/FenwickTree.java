@@ -13,10 +13,10 @@ public class FenwickTree {
     public FenwickTree(int[] array) {
         requireNonNull(array);
         this.tree = new int[array.length + 1];
-        consruct(array);
+        construct(array);
     }
 
-    private void consruct(int[] array) {
+    private void construct(int[] array) {
         for (int i = 1; i <= array.length; ++i) {
             add(i, array[i - 1]);
         }
@@ -27,7 +27,6 @@ public class FenwickTree {
     }
 
     public int sum(int i) {
-        
         ++i;
         
         int sum = 0;
