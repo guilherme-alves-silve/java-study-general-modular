@@ -133,7 +133,7 @@ public class Heap<E> implements Iterable<E> {
     
     public void reverse() {
         this.comparator = comparator.reversed();
-        for (int i = (size - 2) / 2; i >= 0; --i) {
+        for (int i = size / 2; i >= 0; --i) {
             fixDown(i);
         }
     }

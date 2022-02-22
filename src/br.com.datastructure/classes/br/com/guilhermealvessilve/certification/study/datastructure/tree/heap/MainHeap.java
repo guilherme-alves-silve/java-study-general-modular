@@ -1,7 +1,6 @@
 package br.com.guilhermealvessilve.certification.study.datastructure.tree.heap;
 
 import br.com.guilhermealvessilve.certification.study.datastructure.utils.TestUtils;
-import java.util.Objects;
 
 /**
  *
@@ -68,5 +67,13 @@ public class MainHeap {
                 .allMatch(value -> heap3.contains(value) && heap3.remove(value));
         
         System.out.println("heap3 removedAll: " + removedAll);
+        
+        var heap4 = new Heap<Integer>(size, Integer.class, Integer::compare);
+        for (int i = 1; i <= 150; i++) {
+            heap4.insert(i);
+        }
+        
+        heap4.reverse();
+        System.out.println("heap4: " + heap4.sorted());
     }
 }
