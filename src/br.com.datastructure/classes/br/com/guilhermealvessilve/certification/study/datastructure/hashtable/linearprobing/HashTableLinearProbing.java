@@ -37,9 +37,10 @@ public class HashTableLinearProbing<K, V> implements IHashTable<K, V> {
         
         var index = getNextBucket(key);
         var node = table[index];
-        if (node != null && node.key.equals(key)) {
+        if (node != null) {
+            var oldValue = node.value;
             node.value = value;
-            return node.value;
+            return oldValue;
         }
         
         ++size;
@@ -91,7 +92,7 @@ public class HashTableLinearProbing<K, V> implements IHashTable<K, V> {
         int index = getBucketUsingHash(key);
         while (table[index] != null) {
 
-            if (table[index].key.equals(key)) {
+            if (key.equals(table[index].key)) {
                 return index;
             }
             

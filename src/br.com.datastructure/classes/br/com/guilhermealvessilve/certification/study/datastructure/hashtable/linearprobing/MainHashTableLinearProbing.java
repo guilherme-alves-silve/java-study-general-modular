@@ -30,7 +30,7 @@ public class MainHashTableLinearProbing {
         
         System.out.println(hashTable);
         System.out.println("Size is " + qty + ": " + hashTable.size());
-        System.out.println("Size is empty: " + hashTable.isEmpty());
+        System.out.println("hashTable is empty: " + hashTable.isEmpty());
 
         hashTable.printElementsPerBucket();
         
@@ -43,6 +43,6 @@ public class MainHashTableLinearProbing {
         System.out.println(removedAll);
         System.out.println(hashTable);
         System.out.println("Size is 0: " + hashTable.size());
-        System.out.println("Size is empty: " + hashTable.isEmpty());
+        System.out.println("hashTable is empty: " + hashTable.isEmpty());
     }
 }
